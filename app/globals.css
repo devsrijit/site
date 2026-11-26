@@ -1,0 +1,3115 @@
+/* ------------------------------------------------------------------
+   SRJ-0001 datasheet: type system and tokens
+   Ink on paper. Two LED colors, each with fixed jobs.
+   The LED red (--led) has two jobs only:
+   1. live values (the IST clock, its dot, the AWAKE state)
+   2. the lit pin and its trace while a pin is probed
+   The LED green (--ok) has one job only: availability (the status
+   block on the cover and its copy in the work section).
+   Nothing else uses them. Grep for "--led" and "--ok" to count the uses.
+------------------------------------------------------------------- */
+
+:root {
+  --paper: #f1f0ea;
+  --ink: #0e0e0c;
+  --grey: #5c5b55; /* secondary text: 5.97:1 on paper (AA) */
+  --rule: #8b8a84; /* drawn lines only, never text */
+  --hair: #c9c8c1; /* faint table rules */
+  --led: #ff2a1a; /* lit lines, pins and the state dot */
+  --led-text: #d41f0f; /* the same red for text: 4.6:1 on paper (AA) */
+  --ok: #18d15a; /* the status LED: its dot and glow, never text */
+  --ok-text: #0b7a33; /* the same green for text: 4.78:1 on paper (AA) */
+
+  --g: clamp(16px, 1.7vw, 28px); /* page gutter */
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+  --display: var(--f-display), "Arial Narrow", sans-serif;
+  --mono: var(--f-mono), ui-monospace, monospace;
+  --serif: var(--f-serif), Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* In-page jumps land clear of the sticky nav. */
+  scroll-padding-top: 84px;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-x: clip;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Poster-size display type sets line-height below 1, so a filled selection
+   paints the font's whole line box over the rules and lines around it.
+   Selected display letters change ink instead: they turn to the rule grey. */
+.t-display::selection,
+.t-display *::selection {
+  background: transparent;
+  color: var(--rule);
+}
+
+:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---------- the three roles ---------- */
+
+/* 1. Display: ultra-condensed grotesk at poster size. */
+.t-display {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.8;
+  letter-spacing: -0.012em;
+}
+
+/* 2. Data: monospace, small caps-height labels, tabular figures. */
+.t-mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.t-label {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* 3. Voice: serif italic for his own sentences. */
+.t-voice {
+  font-family: var(--serif);
+  font-style: italic;
+  font-optical-sizing: auto;
+  letter-spacing: -0.005em;
+}
+
+/* ------------------------------------------------------------------
+   Page frame
+------------------------------------------------------------------- */
+
+.page {
+  container-type: inline-size;
+  padding: 0 var(--g);
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.cover {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- masthead: document number, nav, live issue line ---------- */
+
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 32px;
+  height: 38px;
+  border-bottom: 4px solid var(--ink);
+}
+
+.masthead-doc {
+  display: flex;
+  gap: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.masthead-doc b {
+  font-weight: 600;
+}
+
+.masthead-rev {
+  color: var(--grey);
+}
+
+.masthead-nav {
+  display: flex;
+  gap: 22px;
+}
+
+.masthead-nav a {
+  position: relative;
+}
+
+.issue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.issue-time {
+  min-width: 8ch;
+  color: var(--grey);
+}
+
+.issue-time[data-live] {
+  color: var(--led-text); /* red job 1: live value */
+}
+
+.issue-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 9ch;
+  margin-left: 6px;
+  color: var(--grey);
+}
+
+.issue-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.25px solid currentColor;
+}
+
+.issue-state[data-state="awake"] {
+  color: var(--led-text); /* red job 1: live value */
+}
+
+.issue-state[data-state="awake"] .issue-dot {
+  background: currentColor;
+}
+
+/* ---------- the name, edge to edge ---------- */
+
+.name {
+  /* "SRIJIT GHOSH" is 4.833 em wide at wdth 62, wght 800. The side
+     bearings take about 1% more, so the ink meets both page edges. */
+  font-size: calc(100cqw / 4.79);
+  line-height: 0.74;
+  padding-top: 0.075em;
+  margin: 0 -0.012em 0 -0.018em;
+  white-space: nowrap;
+}
+
+.name-line {
+  display: block;
+}
+
+.name-line--a,
+.name-line--b {
+  display: none;
+}
+
+/* ---------- title line ---------- */
+
+.title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 0.32em;
+  padding: 12px 0 12px;
+  border-bottom: 1px solid var(--ink);
+  font-size: clamp(24px, 2.9cqw, 46px);
+  line-height: 1;
+}
+
+.title-part {
+  font-size: 13px;
+  align-self: center;
+  margin-right: 0.8em;
+  padding: 3px 6px 2px;
+  border: 1px solid var(--ink);
+}
+
+.title-main {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+}
+
+.title-voice {
+  font-weight: 400;
+  font-size: 1.04em;
+}
+
+/* ---------- body: text column + figure ---------- */
+
+.cover-body {
+  flex: 1;
+  display: grid;
+  /* The text column stops at its reading width. The figure takes the rest
+     and centers its drawing, so the space between them stays balanced. */
+  grid-template-columns: minmax(0, 600px) minmax(880px, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "avail avail"
+    "text fig";
+  column-gap: 40px;
+  row-gap: 14px;
+  padding: 14px 0 10px;
+}
+
+.cover-body > .avail {
+  grid-area: avail;
+}
+
+.cover-body > .cover-text {
+  grid-area: text;
+}
+
+.cover-body > .fig {
+  grid-area: fig;
+}
+
+.cover-text {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 600px;
+}
+
+.sec-h {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 6px;
+  margin-bottom: 9px;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.sec-n {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.feat,
+.apps {
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.feat li,
+.apps li {
+  position: relative;
+  padding-left: 16px;
+}
+
+.feat li + li {
+  margin-top: 3px;
+}
+
+.feat li::before,
+.apps li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  background: var(--ink);
+}
+
+.feat b {
+  font-weight: 600;
+}
+
+.apps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+}
+
+.desc {
+  font-size: 19px;
+  line-height: 1.3;
+  max-width: 34em;
+  text-wrap: pretty;
+}
+
+/* ---------- figure ---------- */
+
+.fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.fig-draw {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* tall screens: the drawing sits in the middle of the free height */
+}
+
+.sch {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.sch--narrow {
+  display: none;
+}
+
+.fig-cap {
+  position: relative;
+  width: 100%;
+  padding-top: 9px;
+  border-top: 1px solid var(--ink);
+}
+
+.fig-title {
+  position: absolute;
+  top: 9px;
+  right: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.02em;
+}
+
+.probe {
+  display: grid;
+  gap: 3px;
+}
+
+.probe-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 18px;
+  padding-right: 300px;
+  font-size: 13.5px;
+}
+
+.probe-k {
+  flex: none;
+  padding: 1px 5px 0;
+  border: 1px solid var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.probe-pin {
+  flex: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.probe-desc {
+  font-size: 16px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.probe-idle {
+  color: var(--grey);
+}
+
+.when-touch {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .when-hover {
+    display: none;
+  }
+  .when-touch {
+    display: inline;
+  }
+}
+
+/* ---------- schematic strokes and text ---------- */
+
+.sch text {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.pkg-fill {
+  fill: var(--ink);
+}
+
+.pkg-outline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.pkg-dimple {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 1.25;
+  opacity: 0.6;
+}
+
+.die {
+  image-rendering: pixelated;
+}
+
+.pkg-window {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 2;
+}
+
+.pkg-mark {
+  fill: var(--paper);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.trace,
+.trace-lit,
+.glyph-sym,
+.end-sym {
+  fill: none;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+
+.trace,
+.glyph-sym,
+.end-sym {
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.trace-lit {
+  stroke: var(--led); /* red job 2: the lit trace */
+  stroke-width: 2.25;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.glyph-mask {
+  fill: var(--paper);
+}
+
+.glyph-ref {
+  fill: var(--grey);
+  font-size: 12.5px;
+}
+
+.end-term {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.lead {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.pin-num {
+  fill: var(--paper);
+  font-size: 12.5px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.net-label {
+  fill: var(--ink);
+}
+
+.net-tag {
+  fill: var(--grey);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+}
+
+.net-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.net-dest {
+  font-size: 13px;
+  opacity: 0;
+}
+
+.net-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 22;
+  pointer-events: stroke;
+}
+
+.net-hitbox {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.net-furniture {
+  pointer-events: none;
+}
+
+.net a,
+.net [role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+
+.sch--narrow .net-name {
+  font-size: 13px;
+}
+
+.sch--narrow .net-tag {
+  font-size: 12px;
+}
+
+.sch--narrow .pin-num {
+  font-size: 12px;
+}
+
+/* Under 372 px the phone drawing scales below 1:1. Its type grows by the
+   same factor, so every label still renders at 12 px or more. */
+@media (max-width: 371px) {
+  .sch--narrow .net-tag,
+  .sch--narrow .pin-num,
+  .sch--narrow .pkg-mark {
+    font-size: 12.5px;
+  }
+
+  .sch--narrow .net-name {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 359px) {
+  .sch--narrow .net-tag,
+  .sch--narrow .pin-num,
+  .sch--narrow .pkg-mark {
+    font-size: 14.2px;
+  }
+
+  .sch--narrow .net-name {
+    font-size: 15px;
+  }
+}
+
+/* Tablets: the wide drawing scales down to about 0.83 between 761 and
+   911 px. Its small type grows by the same factor. */
+@media (min-width: 761px) and (max-width: 911px) {
+  .sch--wide .net-tag,
+  .sch--wide .pin-num,
+  .sch--wide .glyph-ref,
+  .sch--wide .net-dest,
+  .sch--wide .pkg-mark {
+    font-size: 14.5px;
+  }
+}
+
+/* ---------- page footer ---------- */
+
+.pagefoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0 12px;
+  border-top: 4px solid var(--ink);
+  color: var(--ink);
+}
+
+.pagefoot-mid {
+  color: var(--grey);
+}
+
+.pagefoot > * {
+  white-space: nowrap;
+}
+
+/* Small phones: the last footer on the home page keeps only its link to
+   page 2. */
+@media (max-width: 420px) {
+  .work .pagefoot {
+    justify-content: flex-end;
+  }
+
+  .work .pagefoot > span {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Availability: the green status LED. Green has this one job.
+   The lit LED is the base style, so reduced motion shows it steady.
+------------------------------------------------------------------- */
+
+/* The title rule above opens the block; one rule closes it. */
+.avail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 7px;
+  padding: 0 0 11px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.avail-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 6px;
+}
+
+.avail-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 3px 7px 2px 6px;
+  border: 1px solid var(--ok-text);
+  color: var(--ok-text); /* green job: availability */
+  font-weight: 600;
+}
+
+.avail-led {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: inset 0 0 0 1.25px var(--ok-text);
+}
+
+.avail-plain {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+
+.avail-sub {
+  font-size: 13.5px;
+  line-height: 1.4;
+  column-gap: 16px;
+  row-gap: 2px;
+}
+
+.avail-terms {
+  color: var(--grey);
+}
+
+.avail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.avail-link .arrow {
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .avail-link:hover .arrow--right {
+    transform: translateX(3px);
+  }
+
+  .avail-link:hover .arrow--down {
+    transform: translateY(2px);
+  }
+}
+
+/* Phones: the terms take their own line, the two links share the next. */
+@media (max-width: 760px) {
+  .avail-terms {
+    flex-basis: 100%;
+  }
+}
+
+.cover .avail {
+  animation: rise 440ms var(--ease-out) 320ms both;
+}
+
+
+/* ------------------------------------------------------------------
+   Load sequence, about 1.4 s in all.
+   Every element starts from its "from" keyframe (fill-mode: both), so the
+   server HTML is undrawn and nothing flashes before hydration.
+   Delays per net come from lib/schematic.ts as --d (trace) and --ld (lead).
+------------------------------------------------------------------- */
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes name-in {
+  from {
+    clip-path: inset(100% -2% -10% -2%);
+    transform: translateY(0.14em);
+  }
+  to {
+    clip-path: inset(-10% -2% -10% -2%);
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes die-scan {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.masthead {
+  animation: fade-in 260ms ease-out both;
+}
+
+.name {
+  animation: name-in 720ms var(--ease-out) 40ms both;
+}
+
+.title {
+  animation: rise 420ms var(--ease-out) 260ms both;
+}
+
+.cover-text {
+  animation: rise 460ms var(--ease-out) 360ms both;
+}
+
+.fig-cap,
+.pagefoot {
+  animation: fade-in 300ms ease-out 1150ms both;
+}
+
+/* Both LEDs blink on the clock's own second tick: IssueLine sets
+   html[data-tick] to 0 or 1 in the same render that changes the digits.
+   On for even seconds, off for odd ones. Before the clock starts, and with
+   reduced motion, they stay lit. */
+html[data-tick="1"] .issue-state[data-state="awake"] .issue-dot,
+html[data-tick="1"] .avail-led {
+  opacity: 0.25;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-tick="1"] .issue-state[data-state="awake"] .issue-dot,
+  html[data-tick="1"] .avail-led {
+    opacity: 1;
+  }
+}
+
+.pkg-outline {
+  stroke-dasharray: 1;
+  animation: draw 380ms var(--ease-out) 120ms both;
+}
+
+.pkg-fill {
+  animation: fade-in 220ms ease-out 380ms both;
+}
+
+.pkg-dimple,
+.pkg-window,
+.pkg-mark {
+  animation: fade-in 200ms ease-out 560ms both;
+}
+
+.pkg-dimple {
+  animation-name: fade-in;
+}
+
+/* The die "powers on" in hard steps, like a 1-bit display filling in. */
+.die {
+  animation: die-scan 360ms steps(10, end) 480ms both;
+}
+
+.lead {
+  animation: fade-in 140ms ease-out var(--ld) both;
+}
+
+.trace {
+  stroke-dasharray: 1;
+  animation: draw 420ms var(--ease-out) var(--d) both;
+}
+
+.glyph {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 240ms var(--ease-out) calc(var(--d) + 150ms) both;
+}
+
+.end,
+.net-label,
+.pin-num {
+  animation: fade-in 220ms ease-out calc(var(--d) + 300ms) both;
+}
+
+/* ------------------------------------------------------------------
+   Probing a pin. The lit trace sweeps out from the pin (200 ms in) and
+   lets go faster than it arrives (90 ms out). The component and the end
+   switch to red at the moment the sweep reaches them.
+------------------------------------------------------------------- */
+
+.net {
+  transition: opacity 140ms var(--ease-out);
+}
+
+.sch[data-active] .net:not([data-on]) {
+  opacity: 0.32;
+}
+
+.trace-lit {
+  transition:
+    opacity 90ms ease-out,
+    stroke-dashoffset 0s linear 90ms;
+}
+
+.net[data-on] .trace-lit {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition:
+    opacity 30ms linear,
+    stroke-dashoffset 200ms var(--ease-out);
+}
+
+.net[data-on] .lead {
+  fill: var(--led); /* red job 2: the lit pin */
+  stroke: var(--led);
+}
+
+.net[data-on] .glyph-sym,
+.net[data-on] .end-sym {
+  stroke: var(--led); /* red job 2: parts on the lit trace */
+  stroke-width: 1.75;
+  transition: stroke 0s linear 60ms;
+}
+
+.net[data-on] .end-term {
+  fill: var(--led); /* red job 2: the end of the lit trace */
+  stroke: var(--led);
+  transition:
+    fill 0s linear 120ms,
+    stroke 0s linear 120ms;
+}
+
+/* Letting go: the red parts ease back to ink rather than snap. */
+.net .lead,
+.net .glyph-sym,
+.net .end-sym,
+.net .end-term {
+  transition:
+    fill 100ms ease,
+    stroke 100ms ease;
+}
+
+.net-dest {
+  transition: opacity 80ms ease-out;
+}
+
+.net[data-on] .net-dest {
+  opacity: 1;
+  transition: opacity 140ms var(--ease-out);
+}
+
+/* The readout under the figure: each pin's text rises in, so a handoff
+   between pins reads as a change, not a jump. */
+.probe-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.probe-now,
+.probe-desc {
+  animation: probe-in 120ms var(--ease-out);
+}
+
+@keyframes probe-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .probe-now,
+  .probe-desc {
+    animation: none;
+  }
+}
+
+.probe-open {
+  flex: none;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Part pages: one datasheet page per part, /srj-001 to /srj-006
+------------------------------------------------------------------- */
+
+.part {
+  padding-top: 0;
+}
+
+.masthead-side {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  white-space: nowrap;
+}
+
+.masthead-back,
+.pagefoot-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrow {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: square;
+}
+
+.masthead-back .arrow,
+.partnav-link--prev .arrow {
+  transition: transform 220ms var(--ease-out);
+}
+
+.pagefoot-next .arrow,
+.partnav-link--next .arrow {
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .masthead-back:hover .arrow,
+  .partnav-link--prev:hover .arrow {
+    transform: translateX(-3px);
+  }
+
+  .pagefoot-next:hover .arrow,
+  .partnav-link--next:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  .masthead-back:hover,
+  .pagefoot-next:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+}
+
+.masthead--part {
+  grid-template-columns: 1fr auto;
+}
+
+.part-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 40px;
+  padding-top: 10px;
+}
+
+.part-name {
+  /* Half the measure: "MILLION" is 2.954 em wide. Every part name is set
+     at the MILLION size, or smaller when its width (--name-em) would take
+     more than 0.6 of the measure. */
+  font-size: min(calc(100cqw / 2.954 * 0.56), calc(100cqw / var(--name-em, 2.954) * 0.6));
+  line-height: 0.74;
+  padding-top: 0.075em;
+  margin-left: -0.018em;
+}
+
+.part-meta {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 6px;
+}
+
+.part-no {
+  justify-self: start;
+  padding: 3px 6px 2px;
+  border: 1px solid var(--ink);
+}
+
+.part-line {
+  font-size: clamp(24px, 2.6cqw, 40px);
+  line-height: 1.08;
+  max-width: 16em;
+  text-wrap: balance;
+}
+
+.part-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 20px;
+  row-gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ink);
+}
+
+.part-facts dt {
+  color: var(--grey);
+}
+
+.part-facts dd,
+.tbl--order td {
+  overflow-wrap: anywhere;
+}
+
+.part-facts a,
+.tbl a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.title--part {
+  margin-top: 16px;
+  border-top: 4px solid var(--ink);
+  font-size: clamp(22px, 2.2cqw, 34px);
+}
+
+.part-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 40px;
+  row-gap: 40px;
+  padding: 22px 0 36px;
+}
+
+.part-features {
+  grid-column: span 4;
+}
+
+.part-pins {
+  grid-column: span 8;
+}
+
+.part-chars {
+  grid-column: 1 / -1;
+}
+
+.part-app {
+  grid-column: span 7;
+}
+
+.part-order {
+  grid-column: span 5;
+}
+
+.pins-wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.pinout,
+.ac {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Desktop draws the wide circuit; phones draw the narrow one. */
+.ac.ac--narrow {
+  display: none;
+}
+
+.pinout text,
+.ac text {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.po-body,
+.ac-box {
+  fill: none;
+}
+
+.po-dimple {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.po-lead {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.po-num {
+  font-size: 13px;
+  fill: var(--ink);
+}
+
+.po-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  fill: var(--ink);
+}
+
+/* Under 360 px the pin drawing scales to about 0.9. */
+@media (max-width: 359px) {
+  .po-num {
+    font-size: 13.5px;
+  }
+}
+
+.po-pin {
+  animation: fade-in 200ms ease-out var(--d) both;
+}
+
+.ac-sym {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.ac-ref {
+  font-size: 12.5px;
+  fill: var(--grey);
+}
+
+.ac-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.ac-line,
+.ac-note {
+  font-size: 13px;
+  fill: var(--ink);
+}
+
+.ac-note {
+  fill: var(--grey);
+}
+
+.ac-text {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.ac-pin {
+  font-size: 12px;
+  fill: var(--grey);
+  letter-spacing: 0.04em;
+}
+
+.fig-note {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--grey);
+}
+
+.fig-note--center {
+  text-align: center;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Drawings below the fold hold their draw-on until they scroll into view. */
+[data-draw]:not([data-seen]) * {
+  animation-play-state: paused !important;
+}
+
+/* ---------- tables ---------- */
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.tbl th,
+.tbl td {
+  padding: 6px 10px 5px 0;
+  text-align: left;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--hair);
+}
+
+.tbl thead th {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.tbl tbody tr:last-child td,
+.tbl tbody tr:last-child th {
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.tbl .num {
+  text-align: right;
+  padding-right: 18px;
+  white-space: nowrap;
+}
+
+.tbl .strong {
+  font-weight: 600;
+}
+
+.tbl .file {
+  color: var(--grey);
+  white-space: nowrap;
+}
+
+/* A value in words, not a number. It may wrap. */
+.tbl--chars td.txt {
+  white-space: normal;
+  min-width: 12ch;
+}
+
+.tbl sup {
+  font-size: 12px;
+  margin-left: 2px;
+  vertical-align: 4px;
+}
+
+.tbl--chars .grp th {
+  padding-top: 14px;
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ink);
+}
+
+.tbl--chars .c-param {
+  width: 26%;
+}
+
+.tbl--chars .c-unit {
+  width: 9%;
+}
+
+.sym {
+  display: inline-block;
+  min-width: 64px;
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: 15px;
+}
+
+.sym sub {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  vertical-align: -1px;
+}
+
+.tbl--order th {
+  width: 34%;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+.conds {
+  margin: -2px 0 10px;
+  font-size: 13.5px;
+  color: var(--grey);
+  max-width: 90ch;
+}
+
+.foot-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--grey);
+}
+
+.foot-note code {
+  color: var(--ink);
+}
+
+.tbl-scroll {
+  overflow-x: auto;
+}
+
+.cond-inline,
+.typ-narrow {
+  display: none;
+}
+
+/* ------------------------------------------------------------------
+   Narrower screens
+------------------------------------------------------------------- */
+
+/* Laptops and tablets: the figure takes the full measure, the text
+   sections sit side by side under it. */
+@media (max-width: 1240px) {
+  /* The figure title moves above the probe, so a long destination such as
+     the email address never runs into it. */
+  .fig-title {
+    position: static;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .probe-line {
+    padding-right: 0;
+  }
+
+  .cover-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "avail"
+      "fig"
+      "text";
+    gap: 28px;
+  }
+
+
+  .cover-text {
+    order: 2;
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .part-features,
+  .part-pins,
+  .part-app,
+  .part-order {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Phones. Most visitors arrive here from a post on X. */
+@media (max-width: 760px) {
+  :root {
+    --g: 16px;
+  }
+
+  .masthead {
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    height: 34px;
+    border-bottom-width: 3px;
+  }
+
+  .masthead-rev,
+  .masthead-nav {
+    display: none;
+  }
+
+  /* The name breaks onto two lines; each line is fitted to the measure. */
+  .name {
+    font-size: calc(100cqw / 2.232);
+    line-height: 0.76;
+    white-space: normal;
+  }
+
+  .name-line--one {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .name-line--a,
+  .name-line--b {
+    display: block;
+  }
+
+  .name-line--b {
+    /* "GHOSH" is 2.478 em; "SRIJIT" is 2.250 em. */
+    font-size: calc(2.232em / 2.462);
+    margin-top: 0.03em;
+  }
+
+  .title {
+    display: block;
+    padding: 12px 0 14px;
+    font-size: 30px;
+    line-height: 0.98;
+  }
+
+  .title-part {
+    display: inline-block;
+    margin: 0 0 8px;
+  }
+
+  .title-main {
+    display: block;
+  }
+
+  .title-voice {
+    display: block;
+    margin-top: 4px;
+    font-size: 27px;
+  }
+
+  .cover-body {
+    padding-top: 18px;
+    gap: 32px;
+  }
+
+  .cover-text {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .sch--wide {
+    display: none;
+  }
+
+  .sch--narrow {
+    display: block;
+    width: min(340px, 100%);
+  }
+
+  .fig-cap {
+    margin-top: 12px;
+  }
+
+  .fig-title {
+    position: static;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .probe-line {
+    flex-wrap: wrap;
+    padding-right: 0;
+    row-gap: 6px;
+  }
+
+  .probe-open {
+    padding: 4px 0;
+  }
+
+  .probe-desc {
+    white-space: normal;
+    min-height: 40px;
+  }
+
+  .pagefoot {
+    font-size: 12.5px;
+    border-top-width: 3px;
+  }
+
+  .pagefoot-mid {
+    display: none;
+  }
+
+  /* Part pages */
+  .masthead-side .masthead-rev {
+    display: none;
+  }
+
+  .part-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .part-name {
+    font-size: min(calc(100cqw / 2.93), calc(100cqw / (var(--name-em, 2.954) * 0.992)));
+  }
+
+  .part-line {
+    font-size: 26px;
+  }
+
+  .part-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 32px;
+  }
+
+  .pins-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .tbl--pins {
+    justify-self: stretch;
+  }
+
+  .tbl--pins .file {
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* The characteristics table folds to three columns: parameter with
+     its condition under it, the value, and the unit. */
+  .tbl--chars .c-cond,
+  .tbl--chars th.num:not(:nth-child(4)),
+  .tbl--chars td.num:not(:nth-child(4)) {
+    display: none;
+  }
+
+  .tbl--chars .c-param {
+    width: auto;
+  }
+
+  .cond-inline {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--grey);
+  }
+
+  .typ-wide {
+    display: none;
+  }
+
+  .typ-narrow {
+    display: inline;
+  }
+
+  /* Phones get the vertical drawing, laid out at full scale. */
+  .ac.ac--wide {
+    display: none;
+  }
+
+  .ac.ac--narrow {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .tbl .num {
+    padding-right: 12px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Part page footer: previous and next part
+------------------------------------------------------------------- */
+
+.partnav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--ink);
+}
+
+.partnav-link {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  padding: 2px 0;
+}
+
+.partnav-link--next {
+  justify-items: end;
+  text-align: right;
+}
+
+.partnav-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--grey);
+}
+
+.partnav-name {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: clamp(24px, 2.2cqw, 34px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .partnav-link:hover .partnav-name {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Catalogue index under the cover: selection guide
+------------------------------------------------------------------- */
+
+.cat {
+  padding-top: 56px;
+}
+
+.cat > .title--part {
+  margin-top: 0;
+}
+
+.cat-sec {
+  padding: 22px 0 36px;
+}
+
+.tbl--cat {
+  font-size: 14px;
+}
+
+/* The section rule above already opens the table. */
+.tbl--cat thead th {
+  border-top: 0;
+}
+
+.tbl--cat tbody tr {
+  position: relative;
+}
+
+.tbl--cat td {
+  padding-top: 12px;
+  padding-bottom: 11px;
+  vertical-align: baseline;
+}
+
+.tbl--cat .c-no {
+  width: 9%;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tbl--cat .c-name {
+  width: 14%;
+}
+
+.tbl--cat .c-fn {
+  width: 30%;
+  padding-right: 24px;
+}
+
+.tbl--cat .c-pkg {
+  width: 14%;
+}
+
+.tbl--cat .c-stack {
+  width: 15%;
+  padding-right: 16px;
+}
+
+.tbl--cat .c-status {
+  width: 11%;
+}
+
+.cat-link {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  outline: none;
+}
+
+/* The whole row is the link's hit area. */
+.cat-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tbl--cat tbody tr:has(.cat-link:focus-visible) {
+  outline: 1.5px solid var(--ink);
+  outline-offset: -1.5px;
+}
+
+.cat-avail {
+  display: block;
+  color: var(--grey);
+}
+
+.cat-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tbl--cat tbody tr {
+    transition: background-color 160ms var(--ease-out);
+  }
+
+  .tbl--cat tbody tr:hover {
+    background-color: rgb(14 14 12 / 0.045);
+  }
+
+  .tbl--cat tbody tr:hover .cat-link {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1.5px;
+  }
+
+  .tbl--cat tbody tr:hover .cat-page .arrow {
+    transform: translateX(3px);
+  }
+}
+
+/* Laptops and tablets: the package column folds away. The masthead drops
+   its revision line, so the four nav links never cut into it. */
+@media (max-width: 1100px) {
+  .cover .masthead-rev {
+    display: none;
+  }
+
+  .tbl--cat .c-pkg {
+    display: none;
+  }
+}
+
+/* Phones: each part folds into a four-line block. Line 1 is the
+   number, the name and the page; line 2 is the function; line 3 is the
+   stack; line 4 is the package and the status. */
+@media (max-width: 760px) {
+  .partnav {
+    gap: 16px;
+  }
+
+  .partnav-name {
+    font-size: 22px;
+  }
+
+  .cat {
+    padding-top: 40px;
+  }
+
+  .tbl--cat thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .tbl--cat,
+  .tbl--cat tbody {
+    display: block;
+  }
+
+  .tbl--cat tbody tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "no name page"
+      "fn fn fn"
+      "stack stack stack"
+      "pkg pkg status";
+    column-gap: 12px;
+    row-gap: 6px;
+    padding: 14px 0 13px;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .tbl--cat tbody tr:last-child {
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .tbl--cat td,
+  .tbl--cat tbody tr:last-child td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .tbl--cat .c-no,
+  .tbl--cat .c-name,
+  .tbl--cat .c-fn,
+  .tbl--cat .c-pkg,
+  .tbl--cat .c-stack,
+  .tbl--cat .c-status,
+  .tbl--cat .c-page {
+    width: auto;
+  }
+
+  .tbl--cat .c-no {
+    grid-area: no;
+    align-self: center;
+  }
+
+  .tbl--cat .c-name {
+    grid-area: name;
+    align-self: center;
+  }
+
+  .tbl--cat .c-page {
+    grid-area: page;
+    align-self: center;
+    padding-right: 0;
+  }
+
+  .tbl--cat .c-fn {
+    grid-area: fn;
+    padding-right: 0;
+  }
+
+  .tbl--cat .c-pkg {
+    display: block;
+    grid-area: pkg;
+    color: var(--grey);
+  }
+
+  .tbl--cat .c-stack {
+    grid-area: stack;
+    padding-right: 0;
+    font-weight: 500;
+  }
+
+  .tbl--cat .c-status {
+    grid-area: status;
+    text-align: right;
+    color: var(--grey);
+  }
+
+  .cat-avail {
+    display: inline;
+  }
+
+  .cat-avail::before {
+    content: " · ";
+  }
+
+  .cat-link {
+    font-size: 24px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Field history: section 5 of the home page
+------------------------------------------------------------------- */
+
+.work {
+  padding-top: 24px;
+}
+
+.work-status {
+  padding: 22px 0 0;
+}
+
+.avail--steady .avail-k {
+  font-size: 13px;
+}
+
+.avail-detail {
+  flex-basis: 100%;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--grey);
+  max-width: 72ch;
+}
+
+.work-sec {
+  padding: 34px 0 0;
+}
+
+.roles {
+  list-style: none;
+}
+
+.role {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 40px;
+  row-gap: 14px;
+  padding: 16px 0 20px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.role:first-child {
+  padding-top: 8px;
+}
+
+.role:last-child {
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.role-meta {
+  /* Same 5 + 7 split as the work grid below, so the bullets start on the
+     line of "Process compatibility". */
+  grid-column: span 5;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 6px;
+}
+
+.role-bullets {
+  grid-column: span 7;
+  max-width: 78ch;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.role-bullets li + li {
+  margin-top: 6px;
+}
+
+.role-bullets b {
+  font-weight: 600;
+}
+
+.role-dates {
+  color: var(--grey);
+}
+
+.role-name,
+.service-org {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: clamp(30px, 3cqw, 44px);
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+.service-org {
+  font-size: clamp(26px, 2.2cqw, 34px);
+}
+
+.role-role {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.role-note,
+.service-text {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--grey);
+  max-width: 44ch;
+}
+
+.service-text {
+  color: var(--ink);
+}
+
+.role-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+
+.role-award {
+  padding: 3px 7px 2px;
+  border: 1px solid var(--ink);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.role-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.role-link .arrow {
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .role-link:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  .role-award {
+    transition: background-color 160ms var(--ease-out);
+  }
+
+  .role-award:hover {
+    background-color: rgb(14 14 12 / 0.06);
+  }
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 40px;
+  padding-bottom: 36px;
+}
+
+.work-grid > :first-child {
+  grid-column: span 5;
+}
+
+.work-grid > :last-child {
+  grid-column: span 7;
+}
+
+.service {
+  list-style: none;
+  display: grid;
+  gap: 18px;
+  padding-top: 6px;
+}
+
+.service-item {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.service-item:last-child {
+  border-bottom: 0;
+}
+
+/* Both columns close on one rule at the same height, whatever their
+   lengths, so the section ends level before the colophon. */
+.work-grid > section {
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.tbl--skills tbody tr:last-child th,
+.tbl--skills tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tbl--skills th {
+  width: 26%;
+  color: var(--ink);
+}
+
+.tbl--skills td {
+  line-height: 1.45;
+}
+
+/* The section rule above already opens the table. */
+.tbl--skills tr:first-child th,
+.tbl--skills tr:first-child td {
+  border-top: 0;
+}
+
+@media (max-width: 1100px) {
+  .role-meta,
+  .role-bullets,
+  .work-grid > :first-child,
+  .work-grid > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .role-note {
+    max-width: 72ch;
+  }
+}
+
+@media (max-width: 760px) {
+  .work-sec {
+    padding-top: 28px;
+  }
+
+  .role,
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .role-name {
+    font-size: 32px;
+  }
+
+  .role-bullets {
+    font-size: 14px;
+  }
+
+  .tbl--skills th,
+  .tbl--skills td {
+    display: block;
+    width: auto;
+    padding-right: 0;
+  }
+
+  .tbl--skills th {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .tbl--skills td {
+    padding-top: 3px;
+  }
+}
+
+.cat-page .arrow {
+  transition: transform 220ms var(--ease-out);
+}
+
+/* ---------- 404: the errata sheet ---------- */
+
+/* The errata page ends with its part list; it fills the screen so the page
+   never stops short. */
+main:has(> .part > .nf-head) {
+  min-height: calc(100svh - 60px);
+}
+
+.nf-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(20px, 3vw, 48px);
+  align-items: end;
+  padding-block: clamp(24px, 4vw, 48px) clamp(20px, 3vw, 36px);
+  border-bottom: 4px solid var(--ink);
+}
+.nf-code {
+  font-size: clamp(120px, 24vw, 340px);
+}
+.nf-meta {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 0.4em;
+}
+.nf-line {
+  font-size: clamp(22px, 2.4vw, 36px);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.nf-note {
+  color: var(--grey);
+  font-size: 14px;
+}
+.nf-list ul {
+  list-style: none;
+}
+.nf-row {
+  display: grid;
+  grid-template-columns: 9ch 12ch 1fr auto;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 14px;
+  transition: transform 160ms var(--ease-out);
+}
+.nf-row:active {
+  transform: scale(0.99);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nf-row:hover .nf-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+.nf-no {
+  color: var(--grey);
+}
+.nf-name {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 800;
+  font-size: 22px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.nf-fn {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+}
+@media (max-width: 640px) {
+  .nf-head {
+    grid-template-columns: 1fr;
+  }
+  .nf-code {
+    font-size: 52vw;
+  }
+  .nf-row {
+    grid-template-columns: 8ch 1fr auto;
+  }
+  .nf-fn {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Colophon: the closing artwork on the home page. No data. The word in
+   the display face, half outline with its anchors and handles, half
+   rendered, with a split line that follows the pointer. The whole piece
+   stays near three quarters of the screen height.
+------------------------------------------------------------------- */
+
+.colophon {
+  --colo-h: 75svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--colo-h);
+  padding-top: clamp(40px, 6svh, 72px);
+  padding-bottom: clamp(32px, 5svh, 56px);
+}
+
+/* The art box spans the page. The word keeps its proportions at the right
+   (the SVGs use xMaxYMax meet) and the guides run on to the left edge. */
+.colo-art {
+  --split: 56%;
+  /* The art is as tall as the space allows, unless the page is too narrow
+     for that height; then the width sets it. Labels use the same value. */
+  --art-h: min(
+    calc(var(--colo-h) - 160px),
+    calc((min(100vw, 1920px) - 2 * var(--g)) / var(--colo-ratio, 2.2))
+  );
+  position: relative;
+  /* The layers sit in the top of the box; the closing line flows under. */
+  padding-top: var(--art-h);
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.colo-art[data-drag] {
+  cursor: grabbing;
+}
+
+.colo-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: var(--art-h);
+  overflow: hidden;
+}
+
+.colo-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--art-h);
+}
+
+.colo-outline {
+  clip-path: inset(0 calc(100% - var(--split)) 0 0);
+}
+
+.colo-render {
+  clip-path: inset(0 0 0 var(--split));
+  fill: var(--ink);
+}
+
+.colo-labels span {
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+  transform: translateY(calc(-100% - 6px));
+  color: var(--grey);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.colo-guides line {
+  stroke: var(--rule);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.colo-guides .colo-base {
+  stroke: var(--ink);
+  stroke-dasharray: none;
+}
+
+.colo-labels .colo-tag-outline {
+  /* The left edge of the word, at the art's scale. */
+  left: calc(100% - var(--art-h) * var(--colo-word, 1.9));
+}
+
+.colo-labels .colo-tag-rendered {
+  left: auto;
+  right: 0;
+}
+
+.colo-path {
+  fill: rgb(14 14 12 / 0.04);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.colo-handle {
+  stroke: var(--rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.colo-off {
+  fill: var(--paper);
+  stroke: var(--grey);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.colo-on {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.colo-split {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--split);
+  width: 0;
+  border-left: 1px solid var(--ink);
+  pointer-events: none;
+}
+
+.colo-knob {
+  pointer-events: auto;
+  transition: transform 160ms var(--ease-out);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  transform: translate(-50%, -50%);
+}
+
+.colo-art[data-drag] .colo-knob {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.colo-knob:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.colo-knob svg {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.colo-line {
+  /* The closing line follows the same split: an outline on the left of
+     the line, ink on the right. */
+  width: 100%;
+  margin-top: clamp(20px, 3svh, 36px);
+  /* Ends where the word's period ends: its side bearing, at the art's scale. */
+  padding-right: calc(var(--art-h) * var(--colo-rsb, 0.073));
+  text-align: right;
+  font-size: clamp(26px, 3.2vw, 52px);
+  line-height: 1.1;
+  color: transparent;
+  -webkit-text-stroke: 0.6px var(--ink);
+  background: linear-gradient(90deg, transparent var(--split), var(--ink) var(--split));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@media (max-width: 1000px) {
+  .colophon {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .colo-labels {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .colo-knob {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Site navigation: one sticky bar on every page. Real buttons with
+   36 px targets, a Work menu with every part, previous and next on part
+   pages, and one filled button: Email. Phones fold it into Menu.
+------------------------------------------------------------------- */
+
+.nav {
+  --nav-h: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 var(--g);
+  background: var(--paper);
+}
+
+.nav-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--nav-h);
+}
+
+/* The heavy rule of the masthead, thinned to a hairline once the page
+   scrolls under the bar. */
+.nav-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--ink);
+  transform-origin: bottom;
+  transition: transform 240ms var(--ease-out);
+}
+
+.nav[data-stuck] .nav-bar::after {
+  transform: scaleY(0.25);
+}
+
+.nav-brand {
+  margin-right: 14px;
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  /* One line box for <a> and <button>, so every label shares a baseline. */
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.nav-btn:active {
+  transform: scale(0.97);
+}
+
+.nav-btn--solid {
+  padding: 0 16px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.nav-caret {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  transition: transform 200ms var(--ease-out);
+}
+
+.nav-btn[aria-expanded="true"] .nav-caret {
+  transform: rotate(180deg);
+}
+
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.nav-step {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.nav-step-k {
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.nav-step-of {
+  color: var(--grey);
+  font-weight: 400;
+}
+
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  transition:
+    background-color 150ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.nav-icon:active {
+  transform: scale(0.94);
+}
+
+.nav-icon[data-off] {
+  opacity: 0.3;
+}
+
+/* Hover and press: a soft fill on its own layer. It fades in and grows from
+   94% (never from nothing), and a press scales the button and deepens the
+   fill, so the click is felt. Transitions, not keyframes, so a quick
+   in-and-out reverses smoothly. */
+.nav-btn:not(.nav-btn--solid),
+a.nav-icon {
+  position: relative;
+  isolation: isolate;
+}
+
+.nav-btn:not(.nav-btn--solid)::before,
+a.nav-icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(14 14 12 / 0.07);
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 150ms ease,
+    transform 200ms var(--ease-out),
+    background-color 120ms ease;
+}
+
+.nav-btn[aria-expanded="true"]::before {
+  opacity: 1;
+  transform: none;
+  background: rgb(14 14 12 / 0.09);
+}
+
+.nav-btn:not(.nav-btn--solid):active::before,
+a.nav-icon:active::before {
+  opacity: 1;
+  transform: none;
+  background: rgb(14 14 12 / 0.13);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-btn:not(.nav-btn--solid):hover::before,
+  a.nav-icon:hover::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .nav-btn--solid:hover {
+    background: #2b2b28;
+  }
+}
+
+/* ---------- the Work menu ---------- */
+
+.nav-pop {
+  position: relative;
+}
+
+.nav-panel {
+  position: absolute;
+  /* The button ends 12 px above the bar's 4 px rule; 24 px puts the panel
+     a clear 12 px below the rule instead of on it. */
+  top: calc(100% + 24px);
+  left: 0;
+  width: min(600px, calc(100vw - 2 * var(--g)));
+  padding: 6px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 0 18px 40px -18px rgb(14 14 12 / 0.35);
+  transform-origin: top left;
+  animation: nav-pop 180ms var(--ease-out);
+}
+
+.nav-panel[hidden],
+.nav-sheet[hidden] {
+  display: none;
+}
+
+@keyframes nav-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.nav-parts {
+  list-style: none;
+}
+
+.nav-part {
+  display: grid;
+  grid-template-columns: 8.5ch 11ch minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 14px;
+  padding: 11px 10px;
+  transition: background-color 120ms ease;
+}
+
+.nav-part-no {
+  color: var(--grey);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-part-name {
+  font-family: var(--display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.nav-part-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+/* Optical alignment: every cell shares a baseline, but a 21 px all-caps name
+   and 15 px lowercase italic then read as misaligned. Lift the smaller texts
+   so the middle of their letters meets the middle of the name's capitals. */
+.nav-part-line {
+  position: relative;
+  top: -0.26em;
+}
+
+.nav-part-no {
+  position: relative;
+  top: -0.2em;
+}
+
+.nav-part[aria-current="page"] {
+  background: rgb(14 14 12 / 0.06);
+}
+
+.nav-part[aria-current="page"] .nav-part-name::after {
+  content: " ●";
+  font-size: 0.5em;
+  vertical-align: 0.35em;
+}
+
+/* The separator belongs to the list, with room on both sides, so no hover
+   fill ever touches it. */
+.nav-panel .nav-parts {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.nav-panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 10px;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-part:hover,
+  .nav-panel-foot:hover {
+    background: rgb(14 14 12 / 0.06);
+  }
+}
+
+/* ---------- phones: Menu and a sheet under the bar ---------- */
+
+.nav-menu-btn,
+.nav-sheet {
+  display: none;
+}
+
+/* The cover now sits under the bar, so it fills the rest of the screen. */
+.cover {
+  min-height: calc(100svh - 60px);
+}
+
+.part > .part-head {
+  padding-top: 22px;
+}
+
+@media (max-width: 1180px) {
+  .nav-links a[href^="https://github"] {
+    display: none;
+  }
+}
+
+/* Home's fill begins on the page gutter, never past it. The current page
+   reads in weight. */
+.nav-home {
+  margin-left: 0;
+}
+
+.nav-btn[aria-current="page"] {
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .nav-links,
+  .nav-end > .nav-btn--solid {
+    display: none;
+  }
+
+  .nav-menu-btn {
+    display: inline-flex;
+    border: 1px solid var(--ink);
+  }
+
+  .nav-sheet:not([hidden]) {
+    display: block;
+    padding: 6px 0 18px;
+    border-bottom: 1.5px solid var(--ink);
+    animation: nav-pop 180ms var(--ease-out);
+  }
+
+  .nav-sheet .nav-part {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .nav-sheet-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    padding-top: 16px;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .nav-sheet-links a:not(.nav-btn) {
+    padding: 8px 0;
+  }
+
+  .nav-sheet-links .nav-btn--solid {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav {
+    --nav-h: 54px;
+  }
+
+  .nav-brand {
+    font-size: 21px;
+  }
+
+  .nav-end .issue,
+  .nav-step-k {
+    display: none;
+  }
+
+  .nav-sheet .nav-part {
+    grid-template-columns: 8ch minmax(0, 1fr);
+  }
+
+  .nav-sheet .nav-part-line {
+    grid-column: 2;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Tryout: the cover's text column snaps to the figure. Sections 1 to 3
+   spread down the full height, and the column closes on a rule at the
+   exact height of the rule above the probe, so the two read as one line.
+   Revert this block to undo.
+------------------------------------------------------------------- */
+
+@media (min-width: 1241px) {
+  .cover-body {
+    --cap-h: 50px;
+  }
+
+  .fig-cap {
+    height: var(--cap-h);
+  }
+
+  .cover-text {
+    align-self: stretch;
+    justify-content: space-between;
+    margin-bottom: var(--cap-h);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .fig {
+    align-self: stretch;
+  }
+
+  /* The chip's top line of labels (SRJ-001, SUPPLY) sits on the rule under
+     the first section heading: the drawing starts at the top, and 26 px is
+     the measured gap from the figure's top to that rule, less the 3 px the
+     labels sit inside the SVG. */
+  .fig-draw {
+    align-items: flex-start;
+    padding-top: 26px;
+  }
+}
+
+/* Easter egg: the four PlayStation face buttons, boxed like the probe label
+   and set on the same line, under the text column's closing rule. Each mark
+   fills on hover. Shown only where the column snaps to the figure. */
+.egg {
+  display: none;
+}
+
+@media (min-width: 1241px) {
+  .cover-text {
+    position: relative;
+  }
+
+  .egg {
+    position: absolute;
+    top: calc(100% + 11px);
+    left: 0;
+    display: inline-grid;
+    place-items: center;
+    height: 21px;
+    padding: 0 7px;
+    border: 1px solid var(--ink);
+    transition: transform 160ms var(--ease-out);
+  }
+
+  .egg:active {
+    transform: scale(0.96);
+  }
+
+  .egg svg {
+    display: block;
+    width: 67px;
+    height: 14px;
+    overflow: visible;
+  }
+
+  .egg svg > * {
+    fill: transparent;
+    stroke: var(--ink);
+    stroke-width: 1.6;
+    stroke-linejoin: miter;
+    transition: fill 160ms ease;
+  }
+
+  .egg .egg-x {
+    stroke-linecap: square;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .egg:hover svg > *:not(.egg-x) {
+    fill: var(--ink);
+  }
+
+  .egg:hover .egg-x {
+    stroke-width: 2.6;
+  }
+
+  .egg:hover svg > :nth-child(2) {
+    transition-delay: 40ms;
+  }
+
+  .egg:hover svg > :nth-child(3) {
+    transition-delay: 80ms;
+  }
+
+  .egg:hover svg > :nth-child(4) {
+    transition-delay: 120ms;
+  }
+}
+
+/* Pin tables: the I/O column takes the width of "I/O" and never breaks it,
+   and the long names keep clear of it. */
+.tbl--pins th:nth-child(3),
+.tbl--pins td:nth-child(3) {
+  white-space: nowrap;
+  padding-right: 14px;
+}
+
+.tbl--pins th:nth-child(2),
+.tbl--pins td:nth-child(2) {
+  padding-right: 14px;
+}
+
+/* In-page jumps (History, Catalogue) glide; the browser's own wheel and
+   trackpad scrolling stay native. Off with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Link arrows: the text arrow after a link moves on hover, the same signal
+   as the drawn arrows elsewhere. Out-links (↗) lift up and right; in-site
+   links (→) move right. */
+.go {
+  display: inline-block;
+  margin-left: 0.5ch;
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover > .go {
+    transform: translateX(3px);
+  }
+
+  a:hover > .go--out {
+    transform: translate(2px, -2px);
+  }
+}
+
+a:focus-visible > .go {
+  transform: translateX(3px);
+}
+
+a:focus-visible > .go--out {
+  transform: translate(2px, -2px);
+}

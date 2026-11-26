@@ -1,0 +1,383 @@
+/* ------------------------------------------------------------------
+   Construction intro: components/construct, lib/construct.
+   For about two seconds the page speaks a different language: a
+   near-black canvas, white vector outlines, grey dashed guides and
+   small grey labels. Then a split sweeps it back to paper.
+   These colors live only here and only during the intro. The LED red
+   is never used.
+------------------------------------------------------------------- */
+
+:root {
+  --cx-bg: #0a0a0a;
+  --cx-fg: #ededed;
+  --cx-guide: #3d3d3d;
+  --cx-label: #8f8f8f; /* 6.4:1 on --cx-bg */
+  --cx-box: #2b2b2b;
+  --cx-bar: #1a1a1a;
+  --cx-glyph: #141414;
+  --cx-handle: #8a8a8a;
+}
+
+/* Marked elements get their entrance from the construction, so their own
+   CSS entrance jumps to its end at once. It is not removed: a removed
+   animation would replay, and a finished one paints its text exactly as the
+   page does without the intro. The rule stays on after the intro ("done"). */
+html[data-construct] [data-construct] {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* Text under the layer is finished at once too: its own fade-in would play
+   unseen behind the dark canvas, and a paused fade keeps the text invisible
+   to the browser until the intro ends. The figure keeps its draw-on, which
+   runs as the layer fades. */
+html[data-construct] .name,
+html[data-construct] .name *,
+html[data-construct] .title,
+html[data-construct] .part-name,
+html[data-construct] .cover-text *,
+html[data-construct] .title *,
+html[data-construct] .avail,
+html[data-construct] .avail * {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-play-state: running !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Before the app starts: the first frame is the dark canvas. */
+  html[data-construct="pending"]::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483600;
+    background: var(--cx-bg);
+    /* CSS failsafe: the canvas lets go after 3.2 s even if no script runs. */
+    animation: cx-failsafe 1ms linear 3200ms both;
+  }
+
+  /* The page's own draw-on waits under the layer and runs as the split
+     reveals it. */
+  html[data-construct="pending"] *,
+  html[data-construct="build"] * {
+    animation-play-state: paused !important;
+  }
+}
+
+@keyframes cx-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ---------- the layer ---------- */
+
+.cx {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483601;
+  overflow: hidden;
+  contain: strict;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--mono);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cx-win {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+}
+
+.cx-dark {
+  position: absolute;
+  inset: 0;
+  background: var(--cx-bg);
+}
+
+.cx-guide {
+  position: absolute;
+}
+
+.cx-guide--x {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(180deg, var(--cx-guide) 0 4px, transparent 4px 8px);
+}
+
+.cx-guide--y {
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--cx-guide) 0 4px, transparent 4px 8px);
+}
+
+.cx-guide-hi {
+  position: absolute;
+  inset: 0;
+  background: var(--cx-fg);
+  opacity: 0;
+}
+
+.cx-label {
+  position: absolute;
+  font-size: 12px;
+  line-height: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--cx-label);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.cx-label--v {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* Display type as vector outlines: anchors are squares, handles are circles. */
+.cx-type {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.cx-gfill {
+  fill: var(--cx-glyph);
+}
+
+.cx-gline {
+  fill: none;
+  stroke: var(--cx-fg);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.cx-handles {
+  fill: none;
+  stroke: var(--cx-handle);
+  stroke-width: 1;
+}
+
+.cx-off {
+  fill: var(--cx-bg);
+  stroke: #b8b8b8;
+  stroke-width: 1.25;
+}
+
+.cx-on {
+  fill: var(--cx-bg);
+  stroke: var(--cx-fg);
+  stroke-width: 1.5;
+}
+
+/* Blocks as wireframes: a box, a bar per text line, and the real rules. */
+.cx-block {
+  position: absolute;
+  outline: 1px solid var(--cx-box);
+  outline-offset: -1px;
+  transform-origin: 0 0;
+}
+
+.cx-bar {
+  position: absolute;
+  background: var(--cx-bar);
+}
+
+.cx-box {
+  position: absolute;
+  outline: 1px solid var(--cx-box);
+  outline-offset: -1px;
+}
+
+.cx-box svg {
+  display: block;
+  fill: none;
+  stroke: var(--cx-box);
+  stroke-width: 1;
+}
+
+.cx-rule {
+  position: absolute;
+  background: var(--cx-fg);
+  transform-origin: 0 50%;
+}
+
+.cx-block-hi {
+  position: absolute;
+  inset: 0;
+  outline: 1px solid var(--cx-fg);
+  outline-offset: -1px;
+  opacity: 0;
+}
+
+/* Measurement: a line with end ticks and a pill with the real gap. */
+.cx-measure {
+  position: absolute;
+  background: var(--cx-fg);
+  opacity: 0;
+}
+
+.cx-measure--x {
+  height: 1px;
+}
+
+.cx-measure--y {
+  width: 1px;
+}
+
+.cx-measure::before,
+.cx-measure::after {
+  content: "";
+  position: absolute;
+  background: var(--cx-fg);
+}
+
+.cx-measure--x::before,
+.cx-measure--x::after {
+  top: -3px;
+  width: 1px;
+  height: 7px;
+}
+
+.cx-measure--x::before {
+  left: 0;
+}
+
+.cx-measure--x::after {
+  right: 0;
+}
+
+.cx-measure--y::before,
+.cx-measure--y::after {
+  left: -3px;
+  width: 7px;
+  height: 1px;
+}
+
+.cx-measure--y::before {
+  top: 0;
+}
+
+.cx-measure--y::after {
+  bottom: 0;
+}
+
+.cx-pill {
+  position: absolute;
+  padding: 2px 4px 1px;
+  border-radius: 3px;
+  background: var(--cx-fg);
+  color: var(--cx-bg);
+  font-size: 12px;
+  line-height: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums slashed-zero;
+  opacity: 0;
+}
+
+/* The split: "rendered" behind it, "outline" ahead of it. */
+.cx-split {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.cx-split-ui {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.cx[data-axis="x"] .cx-split {
+  width: 0;
+  height: 100%;
+}
+
+.cx[data-axis="y"] .cx-split {
+  width: 100%;
+  height: 0;
+}
+
+.cx-split-line {
+  position: absolute;
+  background: var(--cx-fg);
+}
+
+.cx[data-axis="x"] .cx-split-line {
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 1px;
+}
+
+.cx[data-axis="y"] .cx-split-line {
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+}
+
+.cx-handle {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cx-fg);
+  color: var(--cx-bg);
+  box-shadow: 0 0 0 1px var(--cx-bg);
+}
+
+.cx-handle svg {
+  display: block;
+}
+
+.cx[data-axis="x"] .cx-handle {
+  left: -13px;
+}
+
+.cx[data-axis="y"] .cx-handle {
+  top: -13px;
+}
+
+.cx[data-axis="y"] .cx-handle svg {
+  transform: rotate(90deg);
+}
+
+.cx-split-label {
+  position: absolute;
+  font-size: 12px;
+  line-height: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.cx-split-label--rendered {
+  color: var(--ink);
+}
+
+.cx-split-label--outline {
+  color: var(--cx-label);
+}
+
+.cx[data-axis="x"] .cx-split-label--rendered {
+  right: 9px;
+}
+
+.cx[data-axis="x"] .cx-split-label--outline {
+  left: 9px;
+}
+
+.cx[data-axis="y"] .cx-split-label--rendered {
+  bottom: 7px;
+}
+
+.cx[data-axis="y"] .cx-split-label--outline {
+  top: 7px;
+}
