@@ -75,10 +75,12 @@ export function SiteNav({ parts }: { parts: NavPart[] }) {
 
   // Keyboard: J and K step through the pages in datasheet order (the cover,
   // then each part), with no wrap at either end. "/" opens the list of parts
-  // that is on screen: the Work panel, or the Menu sheet on a narrow window.
-  // Keys typed into a field, keys with a modifier and held-down repeats do
-  // nothing.
+  // that is on screen (the Work panel, or the Menu sheet on a narrow window),
+  // and a second "/" closes it. Keys typed into a field, keys with a
+  // modifier and held-down repeats do nothing.
   const focusFirst = useRef(false);
+  const openNow = useRef({ work, menu });
+  openNow.current = { work, menu };
   useEffect(() => {
     const pages = ["/", ...parts.map((p) => `/${p.slug}`)];
     const onKey = (e: KeyboardEvent) => {
@@ -87,9 +89,18 @@ export function SiteNav({ parts }: { parts: NavPart[] }) {
       if (t?.closest("input, textarea, select, [contenteditable='true']")) return;
       if (e.key === "/") {
         e.preventDefault(); // Firefox opens quick find on "/"
-        focusFirst.current = true;
-        if (window.matchMedia("(max-width: 760px)").matches) setMenu(true);
-        else setWork(true);
+        const narrow = window.matchMedia("(max-width: 760px)").matches;
+        const open = narrow ? openNow.current.menu : openNow.current.work;
+        if (open) {
+          // Close, and give focus back to the button that opens the list.
+          if (narrow) setMenu(false);
+          else setWork(false);
+          (narrow ? menuBtn : workBtn).current?.focus();
+        } else {
+          focusFirst.current = true;
+          if (narrow) setMenu(true);
+          else setWork(true);
+        }
         return;
       }
       if (e.shiftKey) return;
