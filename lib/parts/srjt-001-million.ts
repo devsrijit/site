@@ -140,6 +140,65 @@ export const MILLION: Part = {
     },
   },
 
+  // Typical performance characteristics, from the two README tables. The
+  // tables ran on different runtimes, so each figure keeps its own
+  // conditions. Ratios: 84.6 / 0.2, 7,400 / 187, 2,062 / 0.005, 12,006 / 147.
+  perf: [
+    {
+      kind: "scatter",
+      title: "Edit recalculation time vs. cells recomputed",
+      conditions: "Chrome 156, production build, M5 MacBook Air. The 1,000,000-order demo ledger.",
+      x: {
+        label: "Cells recomputed",
+        min: 1,
+        max: 1e7,
+        ticks: [
+          { v: 1, label: "1" },
+          { v: 100, label: "100" },
+          { v: 1e4, label: "10k" },
+          { v: 1e6, label: "1M" },
+          { v: 1e7, label: "10M" },
+        ],
+      },
+      y: {
+        label: "Time",
+        min: 1e-7,
+        max: 1,
+        ticks: [
+          { v: 1e-7, label: "100 ns" },
+          { v: 1e-6, label: "1 µs" },
+          { v: 1e-5, label: "10 µs" },
+          { v: 1e-4, label: "100 µs" },
+          { v: 1e-3, label: "1 ms" },
+          { v: 1e-2, label: "10 ms" },
+          { v: 1e-1, label: "100 ms" },
+          { v: 1, label: "1 s" },
+        ],
+      },
+      points: [
+        { x: 4, y: 1e-6, y2: 3e-6, label: "Region change, 4 cells", dx: 2, dy: 24, anchor: "start" },
+        { x: 12, y: 3e-6, label: "Units change, 12 cells", dx: 14, dy: 10, anchor: "start" },
+        { x: 1000011, y: 66e-3, y2: 69e-3, label: "Running total, 1M cells", dx: -14, dy: 6, anchor: "end" },
+        { x: 3000008, y: 185e-3, label: "Tax rate, 3M cells", dx: -14, dy: -10, anchor: "end" },
+      ],
+    },
+    {
+      kind: "ratio",
+      title: "HyperFormula 3.5.0 as a multiple of Million",
+      conditions: "Bun 1.4.4, same machine, the same 1,000,000-order ledger. Both engines gave the same values.",
+      note: "HyperFormula does much more than Million: hundreds of functions, named ranges and linked sheets. This shows what a narrow engine can do; it does not say HyperFormula is slow at its own job.",
+      a: "Million",
+      b: "HyperFormula",
+      max: 1e6,
+      rows: [
+        { label: "Build and calculate", a: "0.2 s", b: "84.6 s", ratio: 423 },
+        { label: "Peak memory", a: "187 MB", b: "about 7.4 GB", ratio: 40, approx: true },
+        { label: "Change the units of one order", a: "0.005 ms", b: "2,062 ms", ratio: 412400 },
+        { label: "Change the tax rate", a: "147 ms", b: "12,006 ms", ratio: 82 },
+      ],
+    },
+  ],
+
   ordering: [
     { k: "License", v: "MIT" },
     { k: "Build", v: "Next.js 16, React 19, TypeScript. The engine and the grid use no libraries." },

@@ -102,6 +102,44 @@ export type NarrowCircuit = {
   loop?: string;
 };
 
+// ---------- typical performance characteristics ----------
+// Only real measurements from the project README. A part without a
+// measured series has no performance section.
+
+/** A log-log plot of measured points. y2 makes a point a measured range. */
+export type PerfScatter = {
+  kind: "scatter";
+  title: string;
+  /** The test conditions, as the README states them. */
+  conditions: string;
+  x: { label: string; min: number; max: number; ticks: { v: number; label: string }[] };
+  y: { label: string; min: number; max: number; ticks: { v: number; label: string }[] };
+  points: {
+    x: number;
+    y: number;
+    y2?: number;
+    label: string;
+    /** Where the label sits, from the marker, in px. */
+    dx: number;
+    dy: number;
+    anchor?: "start" | "middle" | "end";
+  }[];
+};
+
+/** Each row: how many times larger B is than A, on one log axis. */
+export type PerfRatio = {
+  kind: "ratio";
+  title: string;
+  conditions: string;
+  note: string;
+  a: string;
+  b: string;
+  max: number;
+  rows: { label: string; a: string; b: string; ratio: number; approx?: boolean }[];
+};
+
+export type PerfFigure = PerfScatter | PerfRatio;
+
 export type Part = {
   /** Route segment, for example "srjt-002". */
   slug: string;
@@ -136,5 +174,7 @@ export type Part = {
   chars: CharGroup[];
   footnotes: Footnote[];
   circuit: { wide: WideCircuit; narrow: NarrowCircuit; caption: string };
+  /** Typical performance characteristics. Omit when the README has no series. */
+  perf?: PerfFigure[];
   ordering: OrderRow[];
 };

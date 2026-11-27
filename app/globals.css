@@ -1206,6 +1206,136 @@ html[data-tick="1"] .avail-led {
   grid-column: 1 / -1;
 }
 
+.part-perf {
+  grid-column: 1 / -1;
+}
+
+/* ---------- typical performance characteristics ---------- */
+
+.perf-figs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.perf-fig {
+  min-width: 0;
+}
+
+.perf-cap {
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.perf {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.perf--narrow {
+  display: none;
+}
+
+.perf text {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.perf-grid {
+  stroke: var(--hair);
+  stroke-width: 1;
+}
+
+.perf-frame,
+.perf-base {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.perf-tick {
+  font-size: 11.5px;
+  fill: var(--grey);
+}
+
+.perf-head {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--grey);
+}
+
+.perf-axis {
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.perf-label {
+  font-size: 12px;
+  fill: var(--ink);
+  /* A thin paper halo: grid lines and the guide never cut a letter. */
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.perf-guide {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.perf-range {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.perf-mark,
+.perf-bar {
+  fill: var(--ink);
+}
+
+.perf-ratio {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.perf-cond,
+.perf-note {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--grey);
+  max-width: 62ch;
+}
+
+.perf-note {
+  margin-top: 6px;
+}
+
+@media (max-width: 1100px) {
+  .perf-figs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .perf--wide {
+    display: none;
+  }
+
+  .perf--narrow {
+    display: block;
+  }
+}
+
 .part-app {
   grid-column: span 7;
 }
