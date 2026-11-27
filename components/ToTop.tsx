@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 // The back-to-top button at the foot of the page: an ink circle with an
 // outline arrow, in the same language as the colophon knob.
 //
-//   arrive  each time it scrolls into view, the circle draws on, then the
-//           arrow rises into it from below
+//   arrive  each time it scrolls into view, the arrow swipes up into the
+//           circle from below
 //   hover   the arrow swipes up: it leaves through the top while a twin
 //           comes up from below, and a light fill grows behind. Hover out
 //           swipes it back down the same way.
@@ -30,8 +30,8 @@ export function ToTop() {
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        // Fully in view: draw on. Fully out of view: reset, so the next
-        // arrival draws on again.
+        // Fully in view: the arrow swipes in. Fully out of view: reset, so
+        // the next arrival swipes in again.
         if (entry.intersectionRatio >= 0.99) setSeen(true);
         else if (!entry.isIntersecting) {
           setSeen(false);
@@ -69,7 +69,7 @@ export function ToTop() {
             <circle cx={24} cy={24} r={22} />
           </clipPath>
         </defs>
-        <circle className="to-top-ring" cx={24} cy={24} r={23.375} pathLength={1} />
+        <circle className="to-top-ring" cx={24} cy={24} r={23.375} />
         <g clipPath="url(#to-top-clip)">
           <g className="to-top-rise">
             <g className="to-top-loop">

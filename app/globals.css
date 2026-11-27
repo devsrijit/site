@@ -2720,13 +2720,6 @@ main:has(> .part > .nf-head) {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.25;
-  /* Round caps close the seam where the drawn ring starts and ends. */
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  /* The ring draws on clockwise from twelve o'clock. */
-  rotate: -90deg;
-  transform-origin: 24px 24px;
 }
 
 .to-top-arrow {
@@ -2737,18 +2730,10 @@ main:has(> .part > .nf-head) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Arrive: before it is fully in view, the ring is undrawn and the arrow
-     waits below the window. */
-  .to-top:not([data-seen]) .to-top-ring {
-    stroke-dashoffset: 1;
-  }
-
+  /* Arrive: before it is fully in view, the arrow waits below the
+     window. Then it swipes up into the circle. */
   .to-top:not([data-seen]) .to-top-rise {
     translate: 0 32px;
-  }
-
-  .to-top[data-seen] .to-top-ring {
-    transition: stroke-dashoffset 560ms var(--ease-out);
   }
 
   /* Hover in swipes the arrow up; hover out swipes it back down. One
@@ -2758,7 +2743,7 @@ main:has(> .part > .nf-head) {
   }
 
   .to-top[data-seen] .to-top-rise {
-    transition: translate 320ms var(--ease-out) 380ms;
+    transition: translate 460ms cubic-bezier(0.32, 0.72, 0, 1) 120ms;
   }
 
   /* Click: the arrow launches up and out. */
