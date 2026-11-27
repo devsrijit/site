@@ -6,7 +6,7 @@
 import type { Part } from "./types";
 
 export const MILLION: Part = {
-  slug: "srj-001",
+  slug: "srjt-001",
   part: "SRJT-001",
   name: "Million",
   repo: "million",

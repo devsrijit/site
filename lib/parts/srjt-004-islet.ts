@@ -5,7 +5,7 @@
 import type { Part } from "./types";
 
 export const ISLET: Part = {
-  slug: "srj-004",
+  slug: "srjt-004",
   part: "SRJT-004",
   name: "Islet",
   repo: "islet",

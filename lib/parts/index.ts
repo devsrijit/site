@@ -1,11 +1,11 @@
 // The catalogue in order. Page 1 is the cover; part N is on page N + 1.
 
-import { MILLION } from "./srj-001-million";
-import { BLACKBOX } from "./srj-002-blackbox";
-import { UNTELL } from "./srj-003-untell";
-import { ISLET } from "./srj-004-islet";
-import { DUALSENSE } from "./srj-005-dualsense";
-import { VITALS } from "./srj-006-vitals";
+import { MILLION } from "./srjt-001-million";
+import { BLACKBOX } from "./srjt-002-blackbox";
+import { UNTELL } from "./srjt-003-untell";
+import { ISLET } from "./srjt-004-islet";
+import { DUALSENSE } from "./srjt-005-dualsense";
+import { VITALS } from "./srjt-006-vitals";
 import type { Part } from "./types";
 
 export type { Part } from "./types";

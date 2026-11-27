@@ -22,7 +22,7 @@ export type PinDef = {
   name: string;
   /** Small line above the net name: a part number or a pin function. */
   tag: string;
-  /** Where the pin goes: a page on this site ("/srj-001"), a file on this
+  /** Where the pin goes: a page on this site ("/srjt-001"), a file on this
    *  site ("/resume.pdf"), or an outside link. null means the pin only
    *  lights up (VCC and GND). */
   href: string | null;
@@ -48,7 +48,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "MILLION",
     tag: "SRJT-001",
-    href: "/srj-001",
+    href: "/srjt-001",
     dest: "Datasheet p. 2",
     desc: "A spreadsheet engine for the browser, written from scratch. A million rows, 4 million live formulas, and a small edit in microseconds.",
     glyph: { kind: "resistor", ref: "R1" },
@@ -59,7 +59,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "BLACKBOX",
     tag: "SRJT-002",
-    href: "/srj-002",
+    href: "/srjt-002",
     dest: "Datasheet p. 3",
     desc: "A flight recorder for AI agents. Replay the run, see what every LLM call cost, and find the waste.",
     glyph: { kind: "capacitor", ref: "C1" },
@@ -70,7 +70,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "UNTELL",
     tag: "SRJT-003",
-    href: "/srj-003",
+    href: "/srjt-003",
     dest: "Datasheet p. 4",
     desc: "The video framework for coding agents.",
     glyph: { kind: "led", ref: "D1" },
@@ -81,7 +81,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "ISLET",
     tag: "SRJT-004",
-    href: "/srj-004",
+    href: "/srjt-004",
     dest: "Datasheet p. 5",
     desc: "A free, open source Dynamic Island for the MacBook notch.",
     glyph: { kind: "inductor", ref: "L1" },
@@ -92,7 +92,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "DUALSENSE",
     tag: "SRJT-005",
-    href: "/srj-005",
+    href: "/srjt-005",
     dest: "Datasheet p. 6",
     desc: "Control surface for the PS5 DualSense controller. Lightbar, adaptive triggers and haptics, live in the browser over WebHID.",
     glyph: { kind: "crystal", ref: "Y1" },
@@ -103,7 +103,7 @@ export const PINS: PinDef[] = [
     side: "L",
     name: "VITALS",
     tag: "SRJT-006",
-    href: "/srj-006",
+    href: "/srjt-006",
     dest: "Datasheet p. 7",
     desc: "Whoop-style recovery, strain and sleep metrics from any Android Health Connect export.",
     glyph: { kind: "diode", ref: "D2" },

@@ -6,7 +6,7 @@
 import type { Part } from "./types";
 
 export const DUALSENSE: Part = {
-  slug: "srj-005",
+  slug: "srjt-005",
   part: "SRJT-005",
   name: "DualSense",
   repo: "dualsense-studio",

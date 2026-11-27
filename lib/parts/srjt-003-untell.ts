@@ -6,7 +6,7 @@
 import type { Part } from "./types";
 
 export const UNTELL: Part = {
-  slug: "srj-003",
+  slug: "srjt-003",
   part: "SRJT-003",
   name: "Untell",
   repo: "untell",

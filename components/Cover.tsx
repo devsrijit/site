@@ -80,7 +80,7 @@ export function Cover() {
           </section>
           {/* Easter egg: the four face buttons, on the ledge under the last rule.
               It opens the DualSense part. */}
-          <Link className="egg" href="/srj-005" aria-label="DualSense Studio, part SRJT-005" data-construct="block">
+          <Link className="egg" href="/srjt-005" aria-label="DualSense Studio, part SRJT-005" data-construct="block">
             <svg viewBox="0 0 96 20" width="96" height="20" aria-hidden>
               <path className="egg-tri" d="M10 3 18 17H2Z" />
               <circle className="egg-cir" cx="35" cy="10" r="7.5" />

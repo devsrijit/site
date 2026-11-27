@@ -103,7 +103,7 @@ export type NarrowCircuit = {
 };
 
 export type Part = {
-  /** Route segment, for example "srj-002". */
+  /** Route segment, for example "srjt-002". */
   slug: string;
   /** Part number, for example "SRJT-002". */
   part: string;
