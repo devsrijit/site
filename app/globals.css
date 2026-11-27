@@ -2915,7 +2915,12 @@ main:has(> .part > .nf-head) {
     bottom: auto;
     translate: none;
     align-self: center;
-    margin-top: 24px;
+    margin-top: 56px;
+  }
+
+  /* The button is the last thing on the page: little room under it. */
+  .colophon {
+    --colo-pb: max(24px, env(safe-area-inset-bottom));
   }
 }
 
