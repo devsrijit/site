@@ -6,10 +6,12 @@ import posthog from "posthog-js";
 // Page views and a few clicks, sent to PostHog. It runs only when
 // NEXT_PUBLIC_POSTHOG_KEY is set, so local builds and previews send nothing.
 //
-// Privacy: no cookies and no local storage (persistence "memory"), so the
-// site needs no consent banner. No autocapture, no session recording, and
-// Do Not Track is respected. A visitor is one browser tab: a reload starts
-// a new anonymous visitor.
+// Privacy: PostHog's cookieless mode. No cookies, no local or session
+// storage, so the site needs no consent banner. PostHog counts unique
+// visitors with a privacy-preserving hash on its servers, so a reload or a
+// new tab is not a new visitor. The project must have "Enable cookieless
+// tracking" on, or PostHog drops the events. No autocapture, no session
+// recording, and Do Not Track is respected.
 //
 // Events:
 //   $pageview        every page, client-side navigations included
@@ -27,11 +29,14 @@ const UI_HOST = process.env.NEXT_PUBLIC_POSTHOG_REGION === "eu" ? "https://eu.po
 export function Analytics() {
   useEffect(() => {
     if (!KEY) return;
-    posthog.init(KEY, {
+    // React's development mode runs this effect twice; init only once.
+    if (!posthog.__loaded) posthog.init(KEY, {
       api_host: "/ingest",
       ui_host: UI_HOST,
-      persistence: "memory",
+      cookieless_mode: "always",
       autocapture: false,
+      capture_dead_clicks: false,
+      capture_performance: false,
       capture_pageview: "history_change",
       capture_pageleave: true,
       disable_session_recording: true,
