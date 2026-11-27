@@ -1,3 +1,4 @@
+import { Analytics } from "@/components/Analytics";
 import type { Metadata, Viewport } from "next";
 import { Archivo, IBM_Plex_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Suspense fallback={null}>
           <Construction />
         </Suspense>
+        <Analytics />
       </body>
     </html>
   );

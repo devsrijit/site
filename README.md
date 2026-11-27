@@ -29,6 +29,16 @@ Build for production with `bun run build`, then serve with `bun run start`.
   when a label is too close to another label, a wire, a block wall or a symbol. Run it alone with
   `bun run check:circuits`.
 
+## Analytics
+
+PostHog counts page views, resume downloads, email clicks and clicks to other sites. It uses no cookies and no local
+storage, so the site needs no consent banner. The events go through `/ingest` on the site.
+
+Set these environment variables on the host. Without `NEXT_PUBLIC_POSTHOG_KEY`, the site sends nothing.
+
+- `NEXT_PUBLIC_POSTHOG_KEY`: the project API key (it starts with `phc_`).
+- `NEXT_PUBLIC_POSTHOG_REGION`: `us` (the default) or `eu`.
+
 ## Fonts
 
 Archivo, IBM Plex Mono and Newsreader are under the SIL Open Font License. Their licence files are in
