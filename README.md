@@ -37,8 +37,8 @@ Each part page has features, a pin table, electrical characteristics, an applica
 information. The values come from the project's own README, and the part file in `lib/parts/` names that source. A
 value that the README gives as "about" gets a footnote. A part with a live website has a green LED beside its URL.
 
-Million also has performance figures. `components/PerfCharts.tsx` draws them as SVG at 1:1, with one drawing for wide
-screens and one for phones.
+Million also has performance figures. `components/PerfCharts.tsx` draws them as SVG at 1:1, with a separate drawing
+for each layout, so the labels never scale.
 
 ![Two performance figures from the Million datasheet. Figure 2 plots edit recalculation time against cells recomputed on log axes. Figure 3 shows HyperFormula as a multiple of Million on four tasks.](docs/media/figures.png)
 

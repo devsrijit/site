@@ -1,8 +1,9 @@
 import type { PerfFigure, PerfRatio, PerfScatter } from "@/lib/parts/types";
 
 // Typical performance characteristics: small plots in the datasheet style.
-// Every figure is drawn twice, wide for desktop and narrow for phones, each
-// at 1 viewBox unit = 1 CSS px, so the labels keep their size. CSS shows one.
+// Every figure has a wide drawing for desktop and a narrow one for phones,
+// and the ratio figure has one more (see SIZES). Each is drawn at 1 viewBox
+// unit = 1 CSS px, so the labels keep their size. CSS shows one.
 // Markers are the data. The dashed line between them only guides the eye.
 
 type Size = { w: number; h: number; l: number; r: number; t: number; b: number };
