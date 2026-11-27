@@ -305,12 +305,6 @@ a {
   text-transform: uppercase;
 }
 
-.sec-n {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-}
-
 .feat,
 .apps {
   list-style: none;

@@ -39,10 +39,6 @@ type Props = {
 /** One catalogue entry, laid out as a datasheet page. */
 export function PartEntry({ part, index, count, page, pages, prev, next }: Props) {
   const tag = `${part.part} ${part.name.toUpperCase()}`;
-  // Sections count up in page order, so a part with a performance section
-  // numbers the rest after it.
-  let secN = 0;
-  const sec = () => ++secN;
   // Figure 1 is the pin drawing. Performance figures follow, then the circuit.
   const perf = part.perf ?? [];
   const circuitFig = 2 + perf.length;
@@ -98,7 +94,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
       <div className="part-grid">
         <section className="sec part-features" data-construct="block">
           <h2 className="sec-h">
-            <span className="sec-n">{sec()}</span>Features
+            Features
           </h2>
           <ul className="feat">
             {part.features.map((f) => (
@@ -109,7 +105,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
 
         <section className="sec part-pins" data-construct="block">
           <h2 className="sec-h">
-            <span className="sec-n">{sec()}</span>Pin configuration and functions
+            Pin configuration and functions
           </h2>
           <div className="pins-wrap">
             <DrawOnView className="pins-draw">
@@ -145,7 +141,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
 
         <section className="sec part-chars" data-construct="block">
           <h2 className="sec-h">
-            <span className="sec-n">{sec()}</span>Electrical characteristics
+            Electrical characteristics
           </h2>
           <p className="conds">{rich(part.conditions)}</p>
           <div className="tbl-scroll">
@@ -208,7 +204,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
         {perf.length > 0 && (
           <section className="sec part-perf" data-construct="block">
             <h2 className="sec-h">
-              <span className="sec-n">{sec()}</span>Typical performance characteristics
+              Typical performance characteristics
             </h2>
             <PerfCharts figures={perf} first={2} />
           </section>
@@ -216,7 +212,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
 
         <section className="sec part-app" data-construct="block">
           <h2 className="sec-h">
-            <span className="sec-n">{sec()}</span>Application circuit
+            Application circuit
           </h2>
           <DrawOnView className="app-draw">
             <AppCircuit
@@ -232,7 +228,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
 
         <section className="sec part-order" data-construct="block" id="ordering">
           <h2 className="sec-h">
-            <span className="sec-n">{sec()}</span>Ordering information
+            Ordering information
           </h2>
           <table className="tbl tbl--order">
             <tbody>
