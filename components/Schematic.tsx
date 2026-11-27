@@ -186,7 +186,7 @@ export function Schematic() {
             {pin ? (
               <span className="probe-now" key={pin.n}>
                 <span className="probe-pin">
-                  Pin {pad(pin.n)} · {pin.tag.startsWith("SRJ") ? `${pin.tag} ${pin.name}` : `${pin.name} (${pin.tag})`}
+                  Pin {pad(pin.n)} · {pin.tag.startsWith("SRJT") ? `${pin.tag} ${pin.name}` : `${pin.name} (${pin.tag})`}
                 </span>
                 {pin.href && isInternal(pin.href) ? (
                   <Link className="probe-open" href={pin.href}>

@@ -32,7 +32,7 @@ export function Pin({ net, wide, on, handlers }: Props) {
   // drawing furniture: they sit outside the link, so the only text inside
   // it is the net name. The label carries them in words.
   const label = pin.href
-    ? `${pin.name}, ${pin.tag.startsWith("SRJ") ? `${pin.tag} datasheet, page ${pin.dest.replace(/\D/g, "")}` : pin.dest}, pin ${pin.n}`
+    ? `${pin.name}, ${pin.tag.startsWith("SRJT") ? `${pin.tag} datasheet, page ${pin.dest.replace(/\D/g, "")}` : pin.dest}, pin ${pin.n}`
     : `${pin.name}, ${pin.desc} Pin ${pin.n}`;
 
   const body: ReactNode = (

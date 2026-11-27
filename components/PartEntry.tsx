@@ -299,7 +299,7 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
       </nav>
 
       <footer className="pagefoot t-label">
-        <span>SRJS001 – November 2026</span>
+        <span>SRJT-0001 – November 2026</span>
         <span className="pagefoot-mid">srijit.me</span>
         <span>
           Page {page} of {pages}
