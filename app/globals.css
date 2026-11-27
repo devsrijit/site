@@ -1869,6 +1869,15 @@ html[data-tick="1"] .avail-led {
   border-top: 1px solid var(--ink);
 }
 
+/* At 1240 px and under, Ordering information stacks under the circuit and
+   is the last block. Its table already ends on a rule, so the page links
+   need no second one. */
+@media (max-width: 1240px) {
+  .partnav {
+    border-top: 0;
+  }
+}
+
 .partnav-link {
   display: grid;
   gap: 6px;
