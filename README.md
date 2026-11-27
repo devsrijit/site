@@ -10,7 +10,7 @@ catalogue, with its own pinout, electrical characteristics and application circu
 Each load starts with a construction drawing of the page. The guides, the wireframes and the letter outlines are
 measured from the real page. Then the drawing fades, and the finished page is under it.
 
-![The intro animation. A dark layer draws guides and wireframes over the page and draws the name as outlines. The layer fades to the paper page, and then the pins of the chip are probed one by one.](docs/media/intro.gif)
+![The intro animation. It opens on the finished cover. Then a dark layer draws guides and wireframes over the page and draws the name as outlines. The layer fades to the paper page, and then the pins of the chip are probed one by one.](docs/media/intro.gif)
 
 ## The intro is measured, not keyframed
 
