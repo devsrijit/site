@@ -124,7 +124,12 @@ function Ratio({ f, s, cls, stack }: { f: PerfRatio; s: Size; cls: string; stack
 
 const SIZES = {
   scatter: { wide: { w: 560, h: 300, l: 62, r: 14, t: 26, b: 44 }, narrow: { w: 328, h: 260, l: 56, r: 10, t: 26, b: 44 } },
-  ratio: { wide: { w: 560, h: 0, l: 0, r: 76, t: 30, b: 40 }, narrow: { w: 328, h: 0, l: 0, r: 70, t: 30, b: 40 } },
+  // The wide ratio figure fits the 5-column cell beside the scatter (see
+  // .perf-figs), which is 476 px at its narrowest.
+  ratio: {
+    wide: { w: 460, h: 0, l: 0, r: 76, t: 30, b: 40 },
+    narrow: { w: 328, h: 0, l: 0, r: 70, t: 30, b: 40 },
+  },
 };
 
 function Figure({ f }: { f: PerfFigure }) {

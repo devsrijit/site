@@ -1190,10 +1190,33 @@ html[data-tick="1"] .avail-led {
 
 /* ---------- typical performance characteristics ---------- */
 
+/* The same 12 columns and gap as .part-grid, split 7 and 5 like the
+   application circuit and the ordering information under it, so the
+   second figure starts on the same edge as Ordering information. */
 .perf-figs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 40px;
+}
+
+.perf-fig:nth-child(odd) {
+  grid-column: span 7;
+}
+
+.perf-fig:nth-child(even) {
+  grid-column: span 5;
+}
+
+/* At this width the circuit and the ordering information stack, so there
+   is no edge to share: the figures take half each. */
+@media (max-width: 1240px) {
+  .perf-figs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .perf-fig:nth-child(n) {
+    grid-column: auto;
+  }
 }
 
 .perf-fig {
