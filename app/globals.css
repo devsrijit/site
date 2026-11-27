@@ -3560,3 +3560,74 @@ a:focus-visible > .go--out {
 .nowrap {
   white-space: nowrap;
 }
+
+/* ------------------------------------------------------------------
+   Print: a page prints as a plain datasheet on white. The site chrome
+   goes, every drawing shows in its final state, the LEDs stay lit, and
+   the ink blocks print.
+------------------------------------------------------------------- */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 12mm 14mm;
+  }
+
+  /* Printed datasheets are white: the paper colour fills only inside the
+     page margins, so it would print as a beige box. */
+  :root {
+    --paper: #fff;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  html {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .nav,
+  .partnav,
+  .pagefoot,
+  .to-top,
+  .colo-knob,
+  .nav-keys,
+  .cx {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  html[data-tick] .avail-led,
+  html[data-tick] .issue-dot[data-live] {
+    opacity: 1 !important;
+  }
+
+  .sec-h {
+    break-after: avoid;
+  }
+
+  figure,
+  .perf-fig,
+  .app-draw,
+  .pinout,
+  .tbl tr,
+  .part-head {
+    break-inside: avoid;
+  }
+
+  /* The page is narrow: the facts sit under the part name, as on phones,
+     so a URL never breaks inside a word. */
+  .part-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
