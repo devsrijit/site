@@ -124,7 +124,9 @@ export type Part = {
   /** Package letter for the pin drawing note, for example "N". */
   pkgCode: string;
   /** The live demo, or the install or download page. key names the row. */
-  live?: { href: string; label: string; key?: string };
+  /** site: the link is a running website, so its row gets the green LED.
+   *  Not for a package page, a store page or a download page. */
+  live?: { href: string; label: string; key?: string; site?: boolean };
   source: string;
   /** Part-name width in em at wdth 62, wght 800. Sizes the display name. */
   nameEm: number;

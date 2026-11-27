@@ -18,7 +18,7 @@ export const BLACKBOX: Part = {
   stack: "Next.js · React · Tailwind",
   pkg: "Browser",
   pkgCode: "D",
-  live: { href: "https://blackbox.srijit.me", label: "blackbox.srijit.me" },
+  live: { href: "https://blackbox.srijit.me", label: "blackbox.srijit.me", site: true },
   source: "https://github.com/DevSrijit/blackbox",
   nameEm: 3.793,
 

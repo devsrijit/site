@@ -18,7 +18,7 @@ export const MILLION: Part = {
   stack: "TypeScript · Web Worker",
   pkg: "Browser, web worker",
   pkgCode: "N",
-  live: { href: "https://million.srijit.me", label: "million.srijit.me" },
+  live: { href: "https://million.srijit.me", label: "million.srijit.me", site: true },
   source: "https://github.com/DevSrijit/million",
   nameEm: 2.954,
 

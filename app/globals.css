@@ -4,8 +4,9 @@
    The LED red (--led) has two jobs only:
    1. live values (the IST clock and its dot)
    2. the lit pin and its trace while a pin is probed
-   The LED green (--ok) has one job only: availability (the status
-   block on the cover and its copy in the work section).
+   The LED green (--ok) has one job only: availability. It marks the
+   status block on the cover, its copy in the work section, and a part's
+   live website (never a package, store or download page).
    Nothing else uses them. Grep for "--led" and "--ok" to count the uses.
 ------------------------------------------------------------------- */
 
@@ -1161,6 +1162,15 @@ html[data-tick="1"] .avail-led {
 .part-facts dd,
 .tbl--order td {
   overflow-wrap: anywhere;
+}
+
+/* The live-site LED sits after the URL and its arrow. */
+.site-led {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 10px;
+  vertical-align: 0.08em;
 }
 
 .part-facts a,
