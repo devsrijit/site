@@ -89,7 +89,7 @@ export function SiteNav({ parts }: { parts: NavPart[] }) {
       if (t?.closest("input, textarea, select, [contenteditable='true']")) return;
       if (e.key === "/") {
         e.preventDefault(); // Firefox opens quick find on "/"
-        const narrow = window.matchMedia("(max-width: 760px)").matches;
+        const narrow = window.matchMedia("(max-width: 900px)").matches;
         const open = narrow ? openNow.current.menu : openNow.current.work;
         if (open) {
           // Close, and give focus back to the button that opens the list.
