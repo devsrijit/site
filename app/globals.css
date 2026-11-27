@@ -156,10 +156,6 @@ a {
   font-weight: 600;
 }
 
-.masthead-rev {
-  color: var(--grey);
-}
-
 .masthead-nav {
   display: flex;
   gap: 22px;
@@ -669,18 +665,6 @@ a {
 
 .pagefoot > * {
   white-space: nowrap;
-}
-
-/* Small phones: the last footer on the home page keeps only its link to
-   page 2. */
-@media (max-width: 420px) {
-  .work .pagefoot {
-    justify-content: flex-end;
-  }
-
-  .work .pagefoot > span {
-    display: none;
-  }
 }
 
 /* ------------------------------------------------------------------
@@ -1663,7 +1647,6 @@ html[data-tick="1"] .avail-led {
     border-bottom-width: 3px;
   }
 
-  .masthead-rev,
   .masthead-nav {
     display: none;
   }
@@ -1771,10 +1754,6 @@ html[data-tick="1"] .avail-led {
   }
 
   /* Part pages */
-  .masthead-side .masthead-rev {
-    display: none;
-  }
-
   .part-head {
     grid-template-columns: minmax(0, 1fr);
     gap: 18px;
@@ -2083,13 +2062,8 @@ html[data-tick="1"] .avail-led {
   }
 }
 
-/* Laptops and tablets: the package column folds away. The masthead drops
-   its revision line, so the four nav links never cut into it. */
+/* Laptops and tablets: the package column folds away. */
 @media (max-width: 1100px) {
-  .cover .masthead-rev {
-    display: none;
-  }
-
   .tbl--cat .c-pkg {
     display: none;
   }

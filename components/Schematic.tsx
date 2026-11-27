@@ -43,7 +43,6 @@ function Package({ layout }: { layout: Layout }) {
       <circle className="pkg-window" cx={w.cx} cy={w.cy} r={w.r} />
       <text className="pkg-mark" x={m.x} y={m.y} textAnchor="middle" fontSize={m.size}>
         <tspan x={m.x}>SRJT-0001N</tspan>
-        <tspan x={m.x} dy="1.35em">DC 2611</tspan>
       </text>
     </g>
   );

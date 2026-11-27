@@ -7,7 +7,7 @@ import { PartBadge, Title, Voice, renderCard } from "./frame";
 
 export function renderHomeCard() {
   return renderCard({
-    masthead: ["Datasheet", "SRJT-0001 – November 2026"],
+    masthead: ["Datasheet"],
     name: "SRIJIT GHOSH",
     lit: 1,
     children: (

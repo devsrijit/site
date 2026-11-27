@@ -15,7 +15,7 @@ const TRACK = -0.012; // display tracking, from .t-display
 const NAME_CAP_TOP = 92; // y of the cap top of the big name
 const NAME_MAX = 236; // largest font size: keeps the name above the package
 
-function Masthead({ left, right }: { left: [string, string]; right: string }) {
+function Masthead({ left, right }: { left: [string, string?]; right: string }) {
   return (
     <div
       style={{
@@ -36,7 +36,7 @@ function Masthead({ left, right }: { left: [string, string]; right: string }) {
     >
       <div style={{ display: "flex", gap: 22 }}>
         <span style={{ fontWeight: 600, color: C.ink }}>{left[0]}</span>
-        <span style={{ fontWeight: 500, color: C.grey }}>{left[1]}</span>
+        {left[1] && <span style={{ fontWeight: 500, color: C.grey }}>{left[1]}</span>}
       </div>
       <span style={{ fontWeight: 600, color: C.ink }}>{right}</span>
     </div>
@@ -132,7 +132,7 @@ export function Voice({ children, size = 50 }: { children: ReactNode; size?: num
 }
 
 type CardProps = {
-  masthead: [string, string];
+  masthead: [string, string?];
   name: string;
   /** Lit pin on the package (1 to 6), or null. */
   lit: number | null;

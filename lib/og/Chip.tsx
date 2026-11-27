@@ -129,7 +129,6 @@ export function Chip(props: ChipProps) {
         }}
       >
         <span>SRJT-0001N</span>
-        <span>DC 2611</span>
       </div>
     </div>
   );

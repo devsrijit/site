@@ -129,7 +129,7 @@ function wide(): Layout {
     notch: 12,
     dimple: [body.x + 22, body.y + 22],
     window: { cx: body.x + body.w / 2, cy: body.y + 160, r: 70, img: 200 },
-    marking: { x: body.x + body.w / 2, y: body.y + 270, size: 13 },
+    marking: { x: body.x + body.w / 2, y: body.y + 279, size: 13 },
     nets,
   };
 }
@@ -180,7 +180,7 @@ function narrow(): Layout {
     notch: 9,
     dimple: [body.x + 14, body.y + 14],
     window: { cx: body.x + body.w / 2, cy: body.y + 158, r: 33, img: 100 },
-    marking: { x: body.x + body.w / 2, y: body.y + 328, size: 12 },
+    marking: { x: body.x + body.w / 2, y: body.y + 336, size: 12 },
     nets,
   };
 }
