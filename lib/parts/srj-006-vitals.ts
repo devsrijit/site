@@ -1,4 +1,4 @@
-// SRJ-006 VITALS. Every value here comes from the project README
+// SRJT-006 VITALS. Every value here comes from the project README
 // (github.com/DevSrijit/vitals): output ranges, model constants and
 // supply versions. A value the README gives as "about" carries footnote 1.
 
@@ -6,7 +6,7 @@ import type { Part } from "./types";
 
 export const VITALS: Part = {
   slug: "srj-006",
-  part: "SRJ-006",
+  part: "SRJT-006",
   name: "Vitals",
   repo: "vitals",
   oneLiner: "Recovery, strain and sleep metrics from a cheap watch, on your own machine.",
@@ -89,12 +89,12 @@ export const VITALS: Part = {
   // Figure: the export comes in on a 6 h sync clock, the engine ingests
   // and computes, and three outputs read the same database.
   circuit: {
-    caption: "Figure 2. SRJ-006 Typical Application: export in, metrics out",
+    caption: "Figure 2. SRJT-006 Typical Application: export in, metrics out",
     wide: {
       w: 664,
       h: 224,
       blocks: [
-        { ref: "U1", x: 150, y: 64, w: 190, h: 118, title: "VITALS", lines: ["Ingest", "Compute", "SQLite database"], d: 120 },
+        { ref: "U1", x: 150, y: 64, w: 190, h: 118, ty: 42, title: "VITALS", lines: ["Ingest", "Compute", "SQLite database"], d: 120 },
       ],
       wires: [
         { pts: [[34, 123], [150, 123]], d: 0 },
@@ -106,12 +106,12 @@ export const VITALS: Part = {
       labels: [
         { x: 34, y: 109, text: "J1", cls: "ac-ref", d: 0 },
         { x: 34, y: 143, text: "HC EXPORT", d: 0 },
-        { x: 70, y: 113, text: "ZIP", cls: "ac-pin", d: 60 },
+        { x: 70, y: 111, text: "ZIP", cls: "ac-pin", d: 60 },
         { x: 245, y: 76, text: "CLK", cls: "ac-pin", anchor: "middle", d: 200 },
-        { x: 261, y: 22, text: "SYNC, 6 h", d: 320 },
-        { x: 430, y: 74, text: "8 tools", anchor: "middle", cls: "ac-note", d: 420 },
-        { x: 430, y: 113, text: "read-only", anchor: "middle", cls: "ac-note", d: 480 },
-        { x: 430, y: 152, text: "Markdown, CSV", anchor: "middle", cls: "ac-note", d: 540 },
+        { x: 265, y: 28, text: "SYNC, 6 h", d: 320 },
+        { x: 430, y: 70, text: "8 tools", anchor: "middle", cls: "ac-note", d: 420 },
+        { x: 430, y: 109, text: "read-only", anchor: "middle", cls: "ac-note", d: 480 },
+        { x: 430, y: 148, text: "Markdown, CSV", anchor: "middle", cls: "ac-note", d: 540 },
         { x: 534, y: 84, text: "MCP", d: 440 },
         { x: 534, y: 123, text: "DASHBOARD", d: 500 },
         { x: 534, y: 162, text: "REPORTS", d: 560 },

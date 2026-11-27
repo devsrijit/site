@@ -1,11 +1,13 @@
 import type { CSSProperties } from "react";
-import { toPath, type Pt } from "@/lib/schematic";
+import { toPath } from "@/lib/schematic";
+import { BOX, LOOP_X, NW, SPINE, layoutNarrow } from "@/lib/circuitNarrow";
 import type { CircuitSym, NarrowCircuit, WideCircuit } from "@/lib/parts/types";
 
 // Figure: a part's typical application, drawn as a circuit.
 // The wide drawing is placed by hand in each part file. The narrow
-// drawing (phones) is laid out here from a vertical signal chain, so it
-// draws at 1 viewBox unit = 1 CSS px and every label keeps its size.
+// drawing (phones) is laid out in lib/circuitNarrow.ts from a vertical
+// signal chain, so it draws at 1 viewBox unit = 1 CSS px and every label
+// keeps its size. scripts/check-circuits.ts checks the spacing of both.
 
 const delay = (d: number) => ({ "--d": `${d}ms` }) as CSSProperties;
 
@@ -57,7 +59,7 @@ function Wide({ c, label }: { c: WideCircuit; label: string }) {
 
       {c.blocks.map((b) => {
         // A block with no lines carries its title in the middle.
-        const titleY = b.lines.length ? b.y + 34 : b.y + b.h / 2;
+        const titleY = b.lines.length ? b.y + (b.ty ?? 34) : b.y + b.h / 2;
         return (
           <g key={b.ref} style={delay(b.d)}>
             <rect className="ac-box trace" x={b.x} y={b.y} width={b.w} height={b.h} pathLength={1} />
@@ -67,7 +69,7 @@ function Wide({ c, label }: { c: WideCircuit; label: string }) {
                 {b.title}
               </text>
               {b.lines.map((l, i) => (
-                <text key={i} className="ac-line" x={b.x + b.w / 2} y={b.y + 54 + i * 15} textAnchor="middle">{l}</text>
+                <text key={i} className="ac-line" x={b.x + b.w / 2} y={titleY + 20 + i * 15} textAnchor="middle">{l}</text>
               ))}
             </g>
           </g>
@@ -93,69 +95,6 @@ function Wide({ c, label }: { c: WideCircuit; label: string }) {
       ))}
     </svg>
   );
-}
-
-// ---------- narrow layout ----------
-
-const NW = 288; // fits a 320 px phone at 1:1
-const SPINE = 30; // x of the signal spine
-const BOX = { x: 6, w: 252 }; // blocks; the loop runs to the right of them
-const LOOP_X = 270;
-const WIRE = 46; // length of a labelled wire
-const STUB = 22; // length of an unlabelled wire between two parts
-const STEP = 110; // draw-on delay between steps, ms
-
-type Item =
-  | { t: "wire"; y0: number; y1: number; label?: string; d: number }
-  | { t: "block"; y: number; h: number; ref: string; title: string; lines: string[]; d: number }
-  | { t: "term"; y: number; ref: string; label: string; d: number };
-
-function layoutNarrow(c: NarrowCircuit) {
-  const items: Item[] = [];
-  let y = 26;
-  let d = 0;
-  let prev: "in" | "wire" | "block" | "out" | null = null;
-  const blocks: { top: number; mid: number; bottom: number }[] = [];
-
-  for (const s of c.steps) {
-    // Two parts in a row get a short plain wire between them.
-    if ((s.kind === "block" || s.kind === "out") && prev && prev !== "wire") {
-      items.push({ t: "wire", y0: y, y1: y + STUB, d });
-      y += STUB;
-    }
-    if (s.kind === "in" || s.kind === "out") {
-      items.push({ t: "term", y, ref: s.ref, label: s.label, d });
-    } else if (s.kind === "wire") {
-      items.push({ t: "wire", y0: y, y1: y + WIRE, label: s.label, d });
-      y += WIRE;
-    } else {
-      const h = 44 + s.lines.length * 17;
-      items.push({ t: "block", y, h, ref: s.ref, title: s.title, lines: s.lines, d });
-      blocks.push({ top: y, mid: y + h / 2, bottom: y + h });
-      y += h;
-    }
-    prev = s.kind;
-    d += STEP;
-  }
-
-  let loop: { path: Pt[]; label: string; d: number } | null = null;
-  if (c.loop && blocks.length > 1) {
-    const first = blocks[0];
-    const last = blocks[blocks.length - 1];
-    loop = {
-      // The loop leaves near the bottom of the last block and returns near
-      // the top of the first, so its label has the full height to run in.
-      path: [
-        [BOX.x + BOX.w, last.bottom - 14],
-        [LOOP_X, last.bottom - 14],
-        [LOOP_X, first.top + 14],
-        [BOX.x + BOX.w, first.top + 14],
-      ],
-      label: c.loop,
-      d,
-    };
-  }
-  return { items, loop, h: y + 14 };
 }
 
 function Narrow({ c, label }: { c: NarrowCircuit; label: string }) {

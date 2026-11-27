@@ -1,4 +1,4 @@
-// SRJ-002 BLACKBOX. Every value here comes from the project README
+// SRJT-002 BLACKBOX. Every value here comes from the project README
 // (github.com/DevSrijit/blackbox). The README states thresholds and
 // limits, not timings, so the characteristics are the limits it states.
 // The license is MIT (confirmed by Srijit).
@@ -7,7 +7,7 @@ import type { Part } from "./types";
 
 export const BLACKBOX: Part = {
   slug: "srj-002",
-  part: "SRJ-002",
+  part: "SRJT-002",
   name: "Blackbox",
   repo: "blackbox",
   oneLiner: "A flight recorder for AI agents.",
@@ -98,39 +98,39 @@ export const BLACKBOX: Part = {
   // with the OpenRouter list, and the replay draws it. A model swap feeds
   // back and prices the run again.
   circuit: {
-    caption: "Figure 2. SRJ-002 Typical Application: trace in, priced replay out",
+    caption: "Figure 2. SRJT-002 Typical Application: trace in, priced replay out",
     wide: {
       w: 664,
-      h: 232,
+      h: 262,
       blocks: [
-        { ref: "U1", x: 140, y: 64, w: 200, h: 130, title: "BLACKBOX", lines: ["Trace adapters", "Cost math", "Five waste checks"], d: 120 },
-        { ref: "U2", x: 470, y: 84, w: 130, h: 78, title: "REPLAY", lines: ["Spend line", "Step timeline"], d: 420 },
+        { ref: "U1", x: 110, y: 70, w: 230, h: 140, ty: 46, title: "BLACKBOX", lines: ["Trace adapters", "Cost math", "Five waste checks"], d: 120 },
+        { ref: "U2", x: 490, y: 60, w: 130, h: 90, title: "REPLAY", lines: ["Spend line", "Step timeline"], d: 420 },
       ],
       wires: [
-        { pts: [[34, 98], [140, 98]], d: 0 },
-        { pts: [[240, 32], [240, 64]], d: 300 },
-        { pts: [[340, 119], [470, 119]], d: 340, bus: true },
-        { pts: [[600, 123], [626, 123]], d: 560 },
-        { pts: [[535, 162], [535, 218], [96, 218], [96, 172], [140, 172]], d: 620 },
+        { pts: [[24, 84], [110, 84]], d: 0 },
+        { pts: [[225, 32], [225, 70]], d: 300 },
+        { pts: [[340, 84], [490, 84]], d: 340, bus: true },
+        { pts: [[620, 105], [636, 105]], d: 560 },
+        { pts: [[555, 150], [555, 248], [80, 248], [80, 196], [110, 196]], d: 620 },
       ],
       labels: [
-        { x: 34, y: 84, text: "J1", cls: "ac-ref", d: 0 },
-        { x: 34, y: 118, text: "TRACE IN", d: 0 },
-        { x: 148, y: 98, text: "TRACE", cls: "ac-pin", d: 200 },
-        { x: 148, y: 172, text: "MODEL", cls: "ac-pin", d: 200 },
-        { x: 332, y: 119, text: "COST", cls: "ac-pin", anchor: "end", d: 200 },
-        { x: 240, y: 76, text: "PRICE", cls: "ac-pin", anchor: "middle", d: 200 },
-        { x: 228, y: 24, text: "J2", cls: "ac-ref", anchor: "end", d: 300 },
-        { x: 253, y: 24, text: "OPENROUTER PRICES, 1 h", d: 320 },
-        { x: 405, y: 103, text: "Steps and cost", anchor: "middle", cls: "ac-pin", d: 380 },
-        { x: 405, y: 136, text: "recorded tokens", anchor: "middle", cls: "ac-note", d: 380 },
-        { x: 318, y: 206, text: "MODEL SWAP · PRICE AGAIN", anchor: "middle", d: 660 },
-        { x: 640, y: 96, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
+        { x: 24, y: 70, text: "J1", cls: "ac-ref", d: 0 },
+        { x: 24, y: 104, text: "TRACE IN", d: 0 },
+        { x: 118, y: 84, text: "TRACE", cls: "ac-pin", d: 200 },
+        { x: 118, y: 196, text: "MODEL", cls: "ac-pin", d: 200 },
+        { x: 332, y: 84, text: "COST", cls: "ac-pin", anchor: "end", d: 200 },
+        { x: 225, y: 84, text: "PRICE", cls: "ac-pin", anchor: "middle", d: 200 },
+        { x: 213, y: 28, text: "J2", cls: "ac-ref", anchor: "end", d: 300 },
+        { x: 238, y: 28, text: "OPENROUTER PRICES, 1 h", d: 320 },
+        { x: 415, y: 66, text: "Steps and cost", anchor: "middle", cls: "ac-pin", d: 380 },
+        { x: 415, y: 102, text: "recorded tokens", anchor: "middle", cls: "ac-note", d: 380 },
+        { x: 318, y: 232, text: "MODEL SWAP · PRICE AGAIN", anchor: "middle", d: 660 },
+        { x: 650, y: 74, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
       ],
       syms: [
-        { kind: "term", cx: 34, cy: 98, d: 0 },
-        { kind: "term", cx: 240, cy: 28, d: 300 },
-        { kind: "display", x: 626, y: 106, d: 560 },
+        { kind: "term", cx: 24, cy: 84, d: 0 },
+        { kind: "term", cx: 225, cy: 28, d: 300 },
+        { kind: "display", x: 636, y: 88, d: 560 },
       ],
     },
     narrow: {

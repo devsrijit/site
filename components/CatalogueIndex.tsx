@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { PARTS, pageOf } from "@/lib/parts";
 import { Arrow } from "./Arrow";
@@ -38,8 +39,29 @@ export function CatalogueIndex() {
                   </Link>
                 </td>
                 <td className="c-fn">{p.fn}</td>
-                <td className="c-pkg">{p.pkg}</td>
-                <td className="c-stack">{p.stack}</td>
+                <td className="c-pkg">
+                  {p.pkg.split(", ").map((item, i) => (
+                    <Fragment key={item}>
+                      {i > 0 && ", "}
+                      <span className="nowrap">{item}</span>
+                    </Fragment>
+                  ))}
+                </td>
+                <td className="c-stack">
+                  {/* Each item stays on one line: "Web Worker", not "Web / Worker".
+                      The dot holds to the item before it, so a line can
+                      end on a dot but never start with one. The package
+                      cell above does the same with its commas. */}
+                  {p.stack.split(" · ").map((item, i, all) => (
+                    <Fragment key={item}>
+                      {i > 0 && " "}
+                      <span className="nowrap">
+                        {item}
+                        {i < all.length - 1 && "\u00a0·"}
+                      </span>
+                    </Fragment>
+                  ))}
+                </td>
                 <td className="c-status">
                   {p.status}
                   <span className="cat-avail">{p.avail}</span>

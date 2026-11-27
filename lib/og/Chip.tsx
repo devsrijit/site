@@ -1,4 +1,4 @@
-// The SRJ-0001 package for the share cards: a 12-pin DIP seen from the
+// The SRJT-0001 package for the share cards: a 12-pin DIP seen from the
 // top, turned on its side so it fits under the name. The pin-1 notch is on
 // the left edge, so pins 1 to 6 run left to right along the bottom and
 // pins 7 to 12 run right to left along the top.
@@ -128,7 +128,7 @@ export function Chip(props: ChipProps) {
           color: C.paper,
         }}
       >
-        <span>SRJ-0001N</span>
+        <span>SRJT-0001N</span>
         <span>DC 2611</span>
       </div>
     </div>

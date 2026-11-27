@@ -1,4 +1,4 @@
-// SRJ-001 MILLION. Every number here comes from the project README
+// SRJT-001 MILLION. Every number here comes from the project README
 // (github.com/DevSrijit/million). Nothing is estimated. A value the README
 // gives as "about" carries footnote 1. MIN and MAX are filled only where
 // the README gives a range.
@@ -7,7 +7,7 @@ import type { Part } from "./types";
 
 export const MILLION: Part = {
   slug: "srj-001",
-  part: "SRJ-001",
+  part: "SRJT-001",
   name: "Million",
   repo: "million",
   oneLiner: "A spreadsheet engine for the browser, written from scratch.",
@@ -93,38 +93,38 @@ export const MILLION: Part = {
   // in, the engine runs on a worker with an 8 ms slice clock, the grid
   // reads the engine's memory over a shared bus, and edits feed back.
   circuit: {
-    caption: "Figure 2. SRJ-001 Typical Application: CSV in, live grid out",
+    caption: "Figure 2. SRJT-001 Typical Application: CSV in, live grid out",
     wide: {
       w: 664,
-      h: 232,
+      h: 262,
       blocks: [
-        { ref: "U1", x: 140, y: 64, w: 190, h: 130, title: "MILLION ENGINE", lines: ["Formula compiler", "Reverse index", "Range and group caches"], d: 120 },
-        { ref: "U2", x: 478, y: 84, w: 122, h: 78, title: "CANVAS GRID", lines: ["About 1 ms", "a frame"], d: 420 },
+        { ref: "U1", x: 110, y: 70, w: 230, h: 140, ty: 46, title: "MILLION ENGINE", lines: ["Formula compiler", "Reverse index", "Range and group caches"], d: 120 },
+        { ref: "U2", x: 490, y: 60, w: 130, h: 90, title: "CANVAS GRID", lines: ["About 1 ms", "a frame"], d: 420 },
       ],
       wires: [
-        { pts: [[34, 98], [140, 98]], d: 0 },
-        { pts: [[235, 40], [235, 64]], d: 300 },
-        { pts: [[330, 119], [478, 119]], d: 340, bus: true },
-        { pts: [[600, 123], [626, 123]], d: 560 },
-        { pts: [[539, 162], [539, 218], [96, 218], [96, 172], [140, 172]], d: 620 },
+        { pts: [[24, 84], [110, 84]], d: 0 },
+        { pts: [[225, 40], [225, 70]], d: 300 },
+        { pts: [[340, 84], [490, 84]], d: 340, bus: true },
+        { pts: [[620, 105], [636, 105]], d: 560 },
+        { pts: [[555, 150], [555, 248], [80, 248], [80, 196], [110, 196]], d: 620 },
       ],
       labels: [
-        { x: 34, y: 84, text: "J1", cls: "ac-ref", d: 0 },
-        { x: 34, y: 118, text: "CSV IN", d: 0 },
-        { x: 148, y: 98, text: "CSV", cls: "ac-pin", d: 200 },
-        { x: 148, y: 172, text: "EDIT", cls: "ac-pin", d: 200 },
-        { x: 322, y: 119, text: "SAB", cls: "ac-pin", anchor: "end", d: 200 },
-        { x: 235, y: 76, text: "CLK", cls: "ac-pin", anchor: "middle", d: 200 },
-        { x: 251, y: 22, text: "8 ms SLICE", d: 320 },
-        { x: 404, y: 103, text: "SharedArrayBuffer", anchor: "middle", cls: "ac-pin", d: 380 },
-        { x: 404, y: 136, text: "read in place", anchor: "middle", cls: "ac-note", d: 380 },
-        { x: 318, y: 206, text: "EDIT · UNDO · PASTE", anchor: "middle", d: 660 },
-        { x: 640, y: 96, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
+        { x: 24, y: 70, text: "J1", cls: "ac-ref", d: 0 },
+        { x: 24, y: 104, text: "CSV IN", d: 0 },
+        { x: 118, y: 84, text: "CSV", cls: "ac-pin", d: 200 },
+        { x: 118, y: 196, text: "EDIT", cls: "ac-pin", d: 200 },
+        { x: 332, y: 84, text: "SAB", cls: "ac-pin", anchor: "end", d: 200 },
+        { x: 225, y: 84, text: "CLK", cls: "ac-pin", anchor: "middle", d: 200 },
+        { x: 245, y: 28, text: "8 ms SLICE", d: 320 },
+        { x: 415, y: 66, text: "SharedArrayBuffer", anchor: "middle", cls: "ac-pin", d: 380 },
+        { x: 415, y: 102, text: "read in place", anchor: "middle", cls: "ac-note", d: 380 },
+        { x: 318, y: 232, text: "EDIT · UNDO · PASTE", anchor: "middle", d: 660 },
+        { x: 650, y: 74, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
       ],
       syms: [
-        { kind: "clock", cx: 235, cy: 28, d: 260 },
-        { kind: "term", cx: 34, cy: 98, d: 0 },
-        { kind: "display", x: 626, y: 106, d: 560 },
+        { kind: "clock", cx: 225, cy: 28, d: 260 },
+        { kind: "term", cx: 24, cy: 84, d: 0 },
+        { kind: "display", x: 636, y: 88, d: 560 },
       ],
     },
     narrow: {

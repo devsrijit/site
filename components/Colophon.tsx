@@ -2,6 +2,7 @@ import type React from "react";
 import { wordGeometry } from "@/lib/colophon/geometry";
 import { GLYPHS } from "@/lib/colophon/glyphs";
 import { ColophonSplit } from "./ColophonSplit";
+import { ToTop } from "./ToTop";
 
 // The closing artwork. It carries no data: the word "srijit" in the display
 // face, half as its vector outline with anchors and handles, half rendered,
@@ -87,6 +88,8 @@ export function Colophon() {
         </svg>
         <p className="colo-line t-voice">everything begins as an outline.</p>
       </ColophonSplit>
+      {/* Outside the split, so a press on it never starts a drag. */}
+      <ToTop />
     </footer>
   );
 }

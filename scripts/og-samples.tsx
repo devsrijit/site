@@ -9,18 +9,18 @@ const OUT = ".comp-shots/og";
 mkdirSync(OUT, { recursive: true });
 
 const parts: PartCardInput[] = [
-  { part: "SRJ-001", name: "MILLION", oneLiner: "A spreadsheet engine for the browser, written from scratch." },
-  { part: "SRJ-002", name: "BLACKBOX", oneLiner: "A flight recorder for AI agents." },
+  { part: "SRJT-001", name: "MILLION", oneLiner: "A spreadsheet engine for the browser, written from scratch." },
+  { part: "SRJT-002", name: "BLACKBOX", oneLiner: "A flight recorder for AI agents." },
 ];
 
 // Stress cases: the longest name and a one-liner that wraps.
 const stress: PartCardInput[] = [
   {
-    part: "SRJ-005",
+    part: "SRJT-005",
     name: "DUALSENSE",
     oneLiner: "A control surface for the PS5 DualSense controller in the browser, over WebHID.",
   },
-  { part: "SRJ-004", name: "ISLET", oneLiner: "A free, open-source Dynamic Island for the MacBook notch." },
+  { part: "SRJT-004", name: "ISLET", oneLiner: "A free, open-source Dynamic Island for the MacBook notch." },
 ];
 
 const save = async (file: string, res: Response) => {

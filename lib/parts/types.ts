@@ -54,6 +54,9 @@ export type CircuitBlock = {
   h: number;
   title: string;
   lines: string[];
+  /** Title baseline below the block top. Default 34. A block with a pin
+   *  label along its top wall sets it lower, so the two do not touch. */
+  ty?: number;
   d: number;
 };
 
@@ -102,7 +105,7 @@ export type NarrowCircuit = {
 export type Part = {
   /** Route segment, for example "srj-002". */
   slug: string;
-  /** Part number, for example "SRJ-002". */
+  /** Part number, for example "SRJT-002". */
   part: string;
   name: string;
   repo: string;

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "bun scripts/check-circuits.ts && next build",
+    "check:circuits": "bun scripts/check-circuits.ts",
     "start": "next start"
   },
   "dependencies": {

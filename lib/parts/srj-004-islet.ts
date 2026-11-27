@@ -1,4 +1,4 @@
-// SRJ-004 ISLET. Every value here comes from the project README
+// SRJT-004 ISLET. Every value here comes from the project README
 // (github.com/DevSrijit/islet). The README has no code map, so the pins
 // are the main parts of the app as the README lists them.
 
@@ -6,7 +6,7 @@ import type { Part } from "./types";
 
 export const ISLET: Part = {
   slug: "srj-004",
-  part: "SRJ-004",
+  part: "SRJT-004",
   name: "Islet",
   repo: "islet",
   oneLiner: "A free, open source Dynamic Island for the MacBook notch.",
@@ -83,42 +83,42 @@ export const ISLET: Part = {
   // MediaRemoteAdapter helper as a JSON stream; system events and dragged
   // files come in directly. The island drives the notch.
   circuit: {
-    caption: "Figure 2. SRJ-004 Typical Application: media and events in, notch out",
+    caption: "Figure 2. SRJT-004 Typical Application: media and events in, notch out",
     wide: {
       w: 664,
-      h: 224,
+      h: 244,
       blocks: [
         { ref: "U2", x: 112, y: 58, w: 140, h: 36, title: "MR ADAPTER", lines: [], d: 120 },
-        { ref: "U1", x: 300, y: 50, w: 170, h: 146, title: "ISLET", lines: ["Now Playing", "Peeks", "HUDs", "Shelf"], d: 240 },
+        { ref: "U1", x: 300, y: 50, w: 170, h: 162, ty: 52, title: "ISLET", lines: ["Now Playing", "Peeks", "HUDs", "Shelf"], d: 240 },
       ],
       wires: [
         { pts: [[34, 76], [112, 76]], d: 0 },
         { pts: [[252, 76], [300, 76]], d: 200 },
-        { pts: [[34, 130], [300, 130]], d: 80 },
-        { pts: [[34, 178], [300, 178]], d: 160 },
-        { pts: [[470, 123], [560, 123]], d: 520 },
-        { pts: [[385, 214], [385, 196]], d: 440 },
+        { pts: [[34, 134], [300, 134]], d: 80 },
+        { pts: [[34, 192], [300, 192]], d: 160 },
+        { pts: [[470, 131], [560, 131]], d: 520 },
+        { pts: [[385, 230], [385, 212]], d: 440 },
       ],
       labels: [
         { x: 22, y: 76, text: "J1", cls: "ac-ref", anchor: "end", d: 0 },
         { x: 34, y: 98, text: "MEDIA", d: 0 },
         { x: 276, y: 64, text: "JSON", cls: "ac-pin", anchor: "middle", d: 260 },
-        { x: 22, y: 130, text: "J2", cls: "ac-ref", anchor: "end", d: 80 },
-        { x: 34, y: 152, text: "EVENTS", d: 80 },
-        { x: 56, y: 118, text: "Battery, Bluetooth, Focus", cls: "ac-note", d: 120 },
-        { x: 22, y: 178, text: "J3", cls: "ac-ref", anchor: "end", d: 160 },
-        { x: 34, y: 200, text: "FILES", d: 160 },
-        { x: 56, y: 166, text: "Drag onto the notch", cls: "ac-note", d: 200 },
-        { x: 397, y: 214, text: "SWIPE · ⌃⌥I", d: 480 },
-        { x: 574, y: 92, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
-        { x: 574, y: 156, text: "NOTCH", anchor: "middle", d: 560 },
+        { x: 22, y: 134, text: "J2", cls: "ac-ref", anchor: "end", d: 80 },
+        { x: 34, y: 156, text: "EVENTS", d: 80 },
+        { x: 56, y: 120, text: "Battery, Bluetooth, Focus", cls: "ac-note", d: 120 },
+        { x: 22, y: 192, text: "J3", cls: "ac-ref", anchor: "end", d: 160 },
+        { x: 34, y: 214, text: "FILES", d: 160 },
+        { x: 56, y: 178, text: "Drag onto the notch", cls: "ac-note", d: 200 },
+        { x: 397, y: 230, text: "SWIPE · ⌃⌥I", d: 480 },
+        { x: 574, y: 100, text: "DS1", cls: "ac-ref", anchor: "middle", d: 560 },
+        { x: 574, y: 164, text: "NOTCH", anchor: "middle", d: 560 },
       ],
       syms: [
         { kind: "term", cx: 34, cy: 76, d: 0 },
-        { kind: "term", cx: 34, cy: 130, d: 80 },
-        { kind: "term", cx: 34, cy: 178, d: 160 },
-        { kind: "term", cx: 385, cy: 214, d: 440 },
-        { kind: "display", x: 560, y: 106, d: 560 },
+        { kind: "term", cx: 34, cy: 134, d: 80 },
+        { kind: "term", cx: 34, cy: 192, d: 160 },
+        { kind: "term", cx: 385, cy: 230, d: 440 },
+        { kind: "display", x: 560, y: 114, d: 560 },
       ],
     },
     narrow: {

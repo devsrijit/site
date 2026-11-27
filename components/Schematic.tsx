@@ -42,7 +42,7 @@ function Package({ layout }: { layout: Layout }) {
       </g>
       <circle className="pkg-window" cx={w.cx} cy={w.cy} r={w.r} />
       <text className="pkg-mark" x={m.x} y={m.y} textAnchor="middle" fontSize={m.size}>
-        <tspan x={m.x}>SRJ-0001N</tspan>
+        <tspan x={m.x}>SRJT-0001N</tspan>
         <tspan x={m.x} dy="1.35em">DC 2611</tspan>
       </text>
     </g>
@@ -65,7 +65,7 @@ function Drawing({ layout, active, handlersFor }: DrawingProps) {
       height={layout.h}
       data-active={active !== null ? "" : undefined}
       role="group"
-      aria-label="SRJ-0001 pin diagram. Each pin links to a project or a contact."
+      aria-label="SRJT-0001 pin diagram. Each pin links to a project or a contact."
     >
       <Package layout={layout} />
       {layout.nets.map((net) => (

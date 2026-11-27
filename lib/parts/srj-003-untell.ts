@@ -1,4 +1,4 @@
-// SRJ-003 UNTELL. Every value here comes from the project README
+// SRJT-003 UNTELL. Every value here comes from the project README
 // (github.com/DevSrijit/untell). The README states counts and supply
 // versions, not timings. The `untell see` sample in the README describes
 // one film, so it is not a characteristic of the part.
@@ -7,7 +7,7 @@ import type { Part } from "./types";
 
 export const UNTELL: Part = {
   slug: "srj-003",
-  part: "SRJ-003",
+  part: "SRJT-003",
   name: "Untell",
   repo: "untell",
   oneLiner: "The video framework for coding agents.",
@@ -87,27 +87,27 @@ export const UNTELL: Part = {
   // Figure: the agent loop. The agent edits scene code on the kit, the
   // framework renders it, and the checks send each fault back.
   circuit: {
-    caption: "Figure 2. SRJ-003 Typical Application: agent in the loop",
+    caption: "Figure 2. SRJT-003 Typical Application: agent in the loop",
     wide: {
       w: 664,
       h: 224,
       blocks: [
-        { ref: "U1", x: 16, y: 74, w: 96, h: 90, title: "AGENT", lines: ["Claude Code", "or Codex"], d: 60 },
-        { ref: "U2", x: 168, y: 64, w: 136, h: 110, title: "KIT", lines: ["20 systems", "76 blocks", "43 lint rules"], d: 180 },
-        { ref: "U3", x: 352, y: 74, w: 120, h: 90, title: "RENDER", lines: ["Remotion or", "HyperFrames"], d: 320 },
-        { ref: "U4", x: 520, y: 64, w: 132, h: 110, title: "CHECK", lines: ["79 rules", "Review sheet"], d: 460 },
+        { ref: "U1", x: 16, y: 74, w: 114, h: 90, title: "AGENT", lines: ["Claude Code", "or Codex"], d: 60 },
+        { ref: "U2", x: 180, y: 64, w: 130, h: 110, title: "KIT", lines: ["20 systems", "76 blocks", "43 lint rules"], d: 180 },
+        { ref: "U3", x: 360, y: 74, w: 116, h: 90, title: "RENDER", lines: ["Remotion or", "HyperFrames"], d: 320 },
+        { ref: "U4", x: 520, y: 64, w: 126, h: 110, title: "CHECK", lines: ["79 rules", "Review sheet"], d: 460 },
       ],
       wires: [
-        { pts: [[112, 119], [168, 119]], d: 140 },
-        { pts: [[304, 119], [352, 119]], d: 280 },
-        { pts: [[472, 119], [520, 119]], d: 420, bus: true },
-        { pts: [[586, 174], [586, 208], [64, 208], [64, 164]], d: 620 },
+        { pts: [[130, 119], [180, 119]], d: 140 },
+        { pts: [[310, 119], [360, 119]], d: 280 },
+        { pts: [[476, 119], [520, 119]], d: 420, bus: true },
+        { pts: [[583, 174], [583, 208], [73, 208], [73, 164]], d: 620 },
       ],
       labels: [
-        { x: 140, y: 106, text: "EDIT", cls: "ac-pin", anchor: "middle", d: 200 },
-        { x: 328, y: 106, text: "SCENE", cls: "ac-pin", anchor: "middle", d: 340 },
-        { x: 496, y: 102, text: "FILM", cls: "ac-pin", anchor: "middle", d: 480 },
-        { x: 325, y: 196, text: "FAULT · TIME · FIX", anchor: "middle", d: 680 },
+        { x: 155, y: 106, text: "EDIT", cls: "ac-pin", anchor: "middle", d: 200 },
+        { x: 335, y: 106, text: "SCENE", cls: "ac-pin", anchor: "middle", d: 340 },
+        { x: 498, y: 102, text: "FILM", cls: "ac-pin", anchor: "middle", d: 480 },
+        { x: 328, y: 196, text: "FAULT · TIME · FIX", anchor: "middle", d: 680 },
       ],
       syms: [],
     },

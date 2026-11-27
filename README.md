@@ -25,6 +25,9 @@ Build for production with `bun run build`, then serve with `bun run start`.
 - `scripts/og-die.ts` makes the dithered die for the share cards.
 - `scripts/favicon.tsx` draws the favicon.
 - `scripts/og-samples.tsx` renders sample share cards for review.
+- `scripts/check-circuits.ts` checks the spacing of every application circuit, wide and phone. It stops the build
+  when a label is too close to another label, a wire, a block wall or a symbol. Run it alone with
+  `bun run check:circuits`.
 
 ## Fonts
 

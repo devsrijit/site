@@ -93,7 +93,7 @@ export function llmsIndex(): string {
     "",
     `${PERSON.availability} Email: ${PERSON.email}.`,
     "",
-    "The site is a component datasheet: Srijit is the device SRJ-0001, and each public project is a part in the catalogue with real specifications from its README.",
+    "The site is a component datasheet: Srijit is the device SRJT-0001, and each public project is a part in the catalogue with real specifications from its README.",
     "",
     "## Parts",
     "",
@@ -122,7 +122,7 @@ export function llmsIndex(): string {
 /** Every datasheet in one Markdown file. */
 export function llmsFull(): string {
   const head = [
-    `# ${PERSON.name}: SRJ-0001 datasheet`,
+    `# ${PERSON.name}: SRJT-0001 datasheet`,
     "",
     `> ${PERSON.title}.`,
     "",

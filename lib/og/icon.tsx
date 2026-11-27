@@ -1,12 +1,10 @@
-// Pixel icons of the SRJ-0001 package: a 12-pin DIP seen from the top,
-// pin-1 notch up, with a tiny die window. Each size is drawn on its own
-// pixel grid (16 and 32), so every edge falls on a whole pixel.
-// The tile is paper, so the icon also reads on a dark tab bar.
+// The favicon is the die window from the chip: the dithered sphere behind
+// a grey quartz ring. Each small size (16 and 32) is drawn on its own
+// pixel grid, so every edge falls on a whole pixel. Outside the ring the
+// tile is clear, so the round icon sits on a light or a dark tab bar.
 
 import { DIE_PATH, DIE_SIZE } from "./die";
 import { C } from "./tokens";
-
-type Grid = number[][]; // 0 paper, 1 ink
 
 // 4 x 4 ordered-dither thresholds.
 const BAYER = [
@@ -44,54 +42,41 @@ function sphereCells(n: number): boolean[][] {
   );
 }
 
-function blank(n: number): Grid {
-  return Array.from({ length: n }, () => Array(n).fill(0));
+/** The window on an `n` pixel grid: a ring `ring` pixels wide around a
+ *  sphere of radius `r`, both centred on the tile. */
+const WINDOW = {
+  16: { r: 6, ring: 1 },
+  32: { r: 13, ring: 2 },
+} as const;
+
+type Cell = "clear" | "ring" | "ink" | "paper";
+
+export function windowGrid(n: 16 | 32): Cell[][] {
+  const { r, ring } = WINDOW[n];
+  const lit = sphereCells(r * 2);
+  const o = n / 2 - r; // offset of the sphere cells in the tile
+  return Array.from({ length: n }, (_, y) =>
+    Array.from({ length: n }, (_, x): Cell => {
+      const d = Math.hypot(x + 0.5 - n / 2, y + 0.5 - n / 2);
+      if (d <= r) return lit[y - o]?.[x - o] ? "paper" : "ink";
+      if (d <= r + ring) return "ring";
+      return "clear";
+    }),
+  );
 }
 
-function fill(g: Grid, x: number, y: number, w: number, h: number, v: number) {
-  for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) g[j][i] = v;
-}
-
-/** The package drawn on a 16 or 32 pixel grid. */
-export function iconGrid(n: 16 | 32): Grid {
-  const g = blank(n);
-  if (n === 16) {
-    fill(g, 4, 1, 8, 14, 1); // body
-    fill(g, 7, 1, 2, 1, 0); // pin-1 notch
-    for (let k = 0; k < 6; k++) {
-      fill(g, 2, 3 + k * 2, 2, 1, 1); // left leads, pins 1 to 6
-      fill(g, 12, 3 + k * 2, 2, 1, 1); // right leads, pins 7 to 12
-    }
-    // Four pixels across is too few for the dither, so the 16 px sphere is
-    // drawn by hand: lit upper left, broken up toward the lower right.
-    const die = [".##.", "###.", "##.#", ".#.."];
-    die.forEach((row, y) => [...row].forEach((c, x) => c === "#" && (g[6 + y][6 + x] = 0)));
-  } else {
-    fill(g, 8, 2, 16, 28, 1); // body
-    fill(g, 14, 2, 4, 2, 0); // pin-1 notch
-    fill(g, 15, 4, 2, 1, 0);
-    for (let k = 0; k < 6; k++) {
-      fill(g, 4, 5 + k * 4, 4, 2, 1); // left leads, pins 1 to 6
-      fill(g, 24, 5 + k * 4, 4, 2, 1); // right leads, pins 7 to 12
-    }
-    const die = sphereCells(10);
-    die.forEach((row, y) => row.forEach((on, x) => on && (g[11 + y][11 + x] = 0)));
-  }
-  return g;
-}
-
-/** One SVG path of the ink pixels, one rectangle per run. */
-function gridPath(g: Grid): string {
+/** One SVG path of the cells of one kind, one rectangle per run. */
+function cellPath(g: Cell[][], kind: Cell): string {
   let d = "";
   g.forEach((row, y) => {
     let x = 0;
     while (x < row.length) {
-      if (!row[x]) {
+      if (row[x] !== kind) {
         x++;
         continue;
       }
       const x0 = x;
-      while (x < row.length && row[x]) x++;
+      while (x < row.length && row[x] === kind) x++;
       d += `M${x0} ${y}h${x - x0}v1h${x0 - x}z`;
     }
   });
@@ -100,58 +85,45 @@ function gridPath(g: Grid): string {
 
 /** The icon as JSX for next/og. */
 export function IconImage({ n }: { n: 16 | 32 }) {
+  const g = windowGrid(n);
   return (
     <svg width={n} height={n} viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges">
-      <rect width={n} height={n} fill={C.paper} />
-      <path d={gridPath(iconGrid(n))} fill={C.ink} />
+      <path d={cellPath(g, "ink")} fill={C.ink} />
+      <path d={cellPath(g, "paper")} fill={C.paper} />
+      <path d={cellPath(g, "ring")} fill={C.rule} />
     </svg>
   );
 }
 
 /**
- * The 180 px Apple touch icon: the same package, large enough for the real
- * die photo at 1:1. The tile is opaque because iOS fills transparency with
- * black, and the drawing keeps clear of the rounded corners iOS cuts.
+ * The 180 px Apple touch icon: the real die photo at 2x behind the same
+ * window as the chip on the cover (radius 0.35 of the photo). The tile is
+ * opaque ink because iOS fills transparency with black, and the window
+ * keeps clear of the rounded corners iOS cuts.
  */
 export function AppleIconImage() {
   const S = 180;
-  const pitch = 21;
-  const bw = 100;
-  const bh = pitch * 7;
-  const bx = (S - bw) / 2;
-  const by = Math.round((S - bh) / 2);
-  const lead = { l: 14, t: 9 };
-  const cx = S / 2;
-  const notch = 9;
-  const win = { cx, cy: by + 62, r: 34 };
-  const body = `M${bx} ${by}H${cx - notch}A${notch} ${notch} 0 0 0 ${cx + notch} ${by}H${bx + bw}V${by + bh}H${bx}Z`;
-  const leadY = (k: number) => by + pitch * (k + 1) - Math.floor(lead.t / 2);
+  const img = DIE_SIZE * 2;
+  const r = 70;
+  const c = S / 2;
   return (
     <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`}>
       <defs>
         <clipPath id="apple-window">
-          <circle cx={win.cx} cy={win.cy} r={win.r} />
+          <circle cx={c} cy={c} r={r} />
         </clipPath>
       </defs>
-      <rect width={S} height={S} fill={C.paper} />
-      {[0, 1, 2, 3, 4, 5].map((k) => (
-        <g key={k}>
-          <rect x={bx - lead.l} y={leadY(k)} width={lead.l} height={lead.t} fill={C.paper} stroke={C.ink} strokeWidth={2} />
-          <rect x={bx + bw} y={leadY(k)} width={lead.l} height={lead.t} fill={C.paper} stroke={C.ink} strokeWidth={2} />
-        </g>
-      ))}
-      <path d={body} fill={C.ink} />
+      <rect width={S} height={S} fill={C.ink} />
       <g clipPath="url(#apple-window)">
-        <rect x={win.cx - DIE_SIZE / 2} y={win.cy - DIE_SIZE / 2} width={DIE_SIZE} height={DIE_SIZE} fill="#000" />
+        <rect x={c - img / 2} y={c - img / 2} width={img} height={img} fill="#000" />
         <path
           d={DIE_PATH}
           fill={C.paper}
           shapeRendering="crispEdges"
-          transform={`translate(${win.cx - DIE_SIZE / 2} ${win.cy - DIE_SIZE / 2})`}
+          transform={`translate(${c - img / 2} ${c - img / 2}) scale(2)`}
         />
       </g>
-      <circle cx={win.cx} cy={win.cy} r={win.r} fill="none" stroke={C.rule} strokeWidth={2} />
-      <circle cx={bx + 14} cy={by + bh - 14} r={4} fill="none" stroke={C.paper} strokeWidth={1.5} opacity={0.6} />
+      <circle cx={c} cy={c} r={r} fill="none" stroke={C.rule} strokeWidth={4} />
     </svg>
   );
 }

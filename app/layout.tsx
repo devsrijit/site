@@ -35,7 +35,7 @@ const description =
   "Srijit Ghosh is a single-chip, full-stack product engineer with an integrated “designer’s eye”. Six open-source projects, each with its datasheet. Open to new roles.";
 const homeTitle = "Srijit Ghosh · Full-stack product engineer";
 
-// A part page sets its own title, for example "SRJ-002 BLACKBOX", and the
+// A part page sets its own title, for example "SRJT-002 BLACKBOX", and the
 // template adds the name. The openGraph and twitter titles do not follow the
 // template, so a part page sets them too.
 export const metadata: Metadata = {

@@ -1,4 +1,4 @@
-// SRJ-005 DUALSENSE. Every value here comes from the project README
+// SRJT-005 DUALSENSE. Every value here comes from the project README
 // (github.com/DevSrijit/dualsense-studio). The README states no
 // measurements, so the characteristics are counts and interfaces. The
 // README has no license section; MIT is from the repository's LICENSE file.
@@ -7,7 +7,7 @@ import type { Part } from "./types";
 
 export const DUALSENSE: Part = {
   slug: "srj-005",
-  part: "SRJ-005",
+  part: "SRJT-005",
   name: "DualSense",
   repo: "dualsense-studio",
   oneLiner: "A control surface for the PS5 DualSense controller, live in the browser.",
@@ -85,27 +85,27 @@ export const DUALSENSE: Part = {
   // an output report, and the transport sends it to the controller. The
   // input report comes back to the monitor.
   circuit: {
-    caption: "Figure 2. SRJ-005 Typical Application: browser to controller over WebHID",
+    caption: "Figure 2. SRJT-005 Typical Application: browser to controller over WebHID",
     wide: {
       w: 664,
       h: 224,
       blocks: [
         { ref: "U1", x: 16, y: 64, w: 110, h: 110, title: "PANELS", lines: ["Triggers", "Lightbar", "Rumble"], d: 60 },
-        { ref: "U2", x: 176, y: 54, w: 176, h: 130, title: "@ds5/protocol", lines: ["Profile to state", "Report encoder", "CRC-32", "Trigger builders"], d: 180 },
-        { ref: "U3", x: 400, y: 84, w: 112, h: 70, title: "TRANSPORT", lines: ["WebHID"], d: 320 },
-        { ref: "U4", x: 560, y: 74, w: 96, h: 90, title: "DUALSENSE", lines: ["Bluetooth", "or USB"], d: 460 },
+        { ref: "U2", x: 176, y: 54, w: 160, h: 130, title: "@ds5/protocol", lines: ["Profile to state", "Report encoder", "CRC-32", "Trigger builders"], d: 180 },
+        { ref: "U3", x: 384, y: 84, w: 112, h: 70, title: "TRANSPORT", lines: ["WebHID"], d: 320 },
+        { ref: "U4", x: 540, y: 74, w: 110, h: 90, title: "DUALSENSE", lines: ["Bluetooth", "or USB"], d: 460 },
       ],
       wires: [
         { pts: [[126, 119], [176, 119]], d: 140 },
-        { pts: [[352, 119], [400, 119]], d: 280, bus: true },
-        { pts: [[512, 119], [560, 119]], d: 420 },
-        { pts: [[608, 164], [608, 208], [71, 208], [71, 174]], d: 620 },
+        { pts: [[336, 119], [384, 119]], d: 280, bus: true },
+        { pts: [[496, 119], [540, 119]], d: 420 },
+        { pts: [[595, 164], [595, 208], [71, 208], [71, 174]], d: 620 },
       ],
       labels: [
         { x: 151, y: 106, text: "EDIT", cls: "ac-pin", anchor: "middle", d: 200 },
-        { x: 376, y: 102, text: "OUT", cls: "ac-pin", anchor: "middle", d: 340 },
-        { x: 536, y: 106, text: "HID", cls: "ac-pin", anchor: "middle", d: 480 },
-        { x: 340, y: 196, text: "INPUT REPORT · BATTERY", anchor: "middle", d: 680 },
+        { x: 360, y: 102, text: "OUT", cls: "ac-pin", anchor: "middle", d: 340 },
+        { x: 518, y: 106, text: "HID", cls: "ac-pin", anchor: "middle", d: 480 },
+        { x: 333, y: 196, text: "INPUT REPORT · BATTERY", anchor: "middle", d: 680 },
       ],
       syms: [],
     },

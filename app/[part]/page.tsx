@@ -40,7 +40,7 @@ export default async function PartPage({ params }: PageProps<"/[part]">) {
   const i = PARTS.indexOf(part);
   // The first part steps back to the cover; the last part steps on to the
   // catalogue index under the cover.
-  const prev: PartLink = i > 0 ? { href: `/${PARTS[i - 1].slug}`, label: label(i - 1) } : { href: "/", label: "SRJ-0001 Cover" };
+  const prev: PartLink = i > 0 ? { href: `/${PARTS[i - 1].slug}`, label: label(i - 1) } : { href: "/", label: "SRJT-0001 Cover" };
   const next: PartLink =
     i < PARTS.length - 1 ? { href: `/${PARTS[i + 1].slug}`, label: label(i + 1) } : { href: "/#catalogue", label: "Catalogue index" };
 

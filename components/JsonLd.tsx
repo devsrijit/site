@@ -94,7 +94,7 @@ export function PartJsonLd({ part }: { part: Part }) {
           {
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "SRJ-0001", item: SITE },
+              { "@type": "ListItem", position: 1, name: "SRJT-0001", item: SITE },
               { "@type": "ListItem", position: 2, name: `${part.part} ${part.name}`, item: `${SITE}/${part.slug}` },
             ],
           },

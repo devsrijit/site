@@ -1,4 +1,4 @@
-// The pins of SRJ-0001. Each pin maps to one real thing: a part in the
+// The pins of SRJT-0001. Each pin maps to one real thing: a part in the
 // catalogue, a link, or a fact about the supply and ground. The six part
 // pins on the left go to the part's datasheet page on this site; that page
 // links out to the live demo or the repository.
@@ -47,7 +47,7 @@ export const PINS: PinDef[] = [
     n: 1,
     side: "L",
     name: "MILLION",
-    tag: "SRJ-001",
+    tag: "SRJT-001",
     href: "/srj-001",
     dest: "Datasheet p. 2",
     desc: "A spreadsheet engine for the browser, written from scratch. A million rows, 4 million live formulas, and a small edit in microseconds.",
@@ -58,7 +58,7 @@ export const PINS: PinDef[] = [
     n: 2,
     side: "L",
     name: "BLACKBOX",
-    tag: "SRJ-002",
+    tag: "SRJT-002",
     href: "/srj-002",
     dest: "Datasheet p. 3",
     desc: "A flight recorder for AI agents. Replay the run, see what every LLM call cost, and find the waste.",
@@ -69,7 +69,7 @@ export const PINS: PinDef[] = [
     n: 3,
     side: "L",
     name: "UNTELL",
-    tag: "SRJ-003",
+    tag: "SRJT-003",
     href: "/srj-003",
     dest: "Datasheet p. 4",
     desc: "The video framework for coding agents.",
@@ -80,7 +80,7 @@ export const PINS: PinDef[] = [
     n: 4,
     side: "L",
     name: "ISLET",
-    tag: "SRJ-004",
+    tag: "SRJT-004",
     href: "/srj-004",
     dest: "Datasheet p. 5",
     desc: "A free, open source Dynamic Island for the MacBook notch.",
@@ -91,7 +91,7 @@ export const PINS: PinDef[] = [
     n: 5,
     side: "L",
     name: "DUALSENSE",
-    tag: "SRJ-005",
+    tag: "SRJT-005",
     href: "/srj-005",
     dest: "Datasheet p. 6",
     desc: "Control surface for the PS5 DualSense controller. Lightbar, adaptive triggers and haptics, live in the browser over WebHID.",
@@ -102,7 +102,7 @@ export const PINS: PinDef[] = [
     n: 6,
     side: "L",
     name: "VITALS",
-    tag: "SRJ-006",
+    tag: "SRJT-006",
     href: "/srj-006",
     dest: "Datasheet p. 7",
     desc: "Whoop-style recovery, strain and sleep metrics from any Android Health Connect export.",

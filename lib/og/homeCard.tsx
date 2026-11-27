@@ -13,7 +13,7 @@ export function renderHomeCard() {
     children: (
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex" }}>
-          <PartBadge text="SRJ-0001" />
+          <PartBadge text="SRJT-0001" />
         </div>
         <div style={{ display: "flex", marginTop: 20 }}>
           <Title lines={["Single-chip, full-stack", "product engineer"]} />
