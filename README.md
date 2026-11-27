@@ -139,7 +139,18 @@ Build for production with `bun run build`, then serve with `bun run start`.
 | `components/` | The page parts: cover, pinout, datasheet, circuits, charts and navigation |
 | `app/` | The routes, the sitemap, robots, the manifest and the share-card routes |
 
-## Fonts
+## License
+
+The code is under the [MIT License](LICENSE). Take the intro, the circuit check or anything else you like.
+
+The MIT License does not cover my personal content. I keep all rights to it:
+
+- my name, and the photo of me in `public/avatar-*.png` and the die drawn from it in `lib/og/die.ts`
+- my resume, `public/resume.pdf`
+- the text about me and my work in `lib/parts/srjt-*.ts`, `lib/work.ts`, `lib/catalogue.ts` and `lib/agent/`
+- the images in `docs/media/`
+
+If you make your own site from this code, put your own content in those files.
 
 Archivo, IBM Plex Mono and Newsreader are under the SIL Open Font License. Their licence files are in
 `assets/fonts/`.
