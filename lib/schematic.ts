@@ -138,7 +138,9 @@ function narrow(): Layout {
   const W = 340;
   const pitch = 50;
   const top = 8;
-  const body = { x: 114, y: top, w: 112, h: pitch * 7 };
+  // The body runs on 8 units past the last pin row, so the part marking
+  // fits under pins 06 and 07 and clears every pin number.
+  const body = { x: 114, y: top, w: 112, h: pitch * 7 + 8 };
   const pinY = (row: number) => top + pitch + row * pitch;
   const lead = 12;
   const termL = 76;
@@ -178,7 +180,7 @@ function narrow(): Layout {
     notch: 9,
     dimple: [body.x + 14, body.y + 14],
     window: { cx: body.x + body.w / 2, cy: body.y + 158, r: 33, img: 100 },
-    marking: { x: body.x + body.w / 2, y: body.y + 258, size: 12 },
+    marking: { x: body.x + body.w / 2, y: body.y + 328, size: 12 },
     nets,
   };
 }
