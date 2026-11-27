@@ -75,15 +75,25 @@ function Ratio({ f, s, cls, stack }: { f: PerfRatio; s: Size; cls: string; stack
   const ticks = [1, 10, 100, 1e3, 1e4, 1e5, 1e6].filter((v) => v <= f.max);
   const tick = (v: number) => (v >= 1e6 ? `${v / 1e6}M×` : v >= 1e3 ? `${v / 1e3}k×` : `${v}×`);
   const ratio = (r: PerfRatio["rows"][number]) => `${r.approx ? "about " : ""}${r.ratio.toLocaleString("en-US")}×`;
+  // The value label sits in the bar band, after the bar. A grid line that
+  // would cross it is left out. RATIO_CH is one glyph of .perf-ratio: 12 px
+  // IBM Plex Mono, 0.6 em wide.
+  const RATIO_CH = 12 * 0.6;
+  const hitsLabel = (v: number, r: PerfRatio["rows"][number]) => {
+    const l = X(r.ratio) + 6;
+    return X(v) >= l - 4 && X(v) <= l + ratio(r).length * RATIO_CH + 4;
+  };
 
   return (
     <svg className={`perf ${cls}`} viewBox={`0 0 ${s.w} ${s.h}`} width={s.w} height={s.h} role="img" aria-label={f.title}>
       {/* Grid lines run only through the bar bands, never through text. */}
       {ticks.map((v) => (
         <g key={v}>
-          {f.rows.map((r, i) => (
-            <line key={r.label} className="perf-grid" x1={X(v)} x2={X(v)} y1={top + i * row + barY - 4} y2={top + i * row + barY + 13} />
-          ))}
+          {f.rows.map((r, i) =>
+            hitsLabel(v, r) ? null : (
+              <line key={r.label} className="perf-grid" x1={X(v)} x2={X(v)} y1={top + i * row + barY - 4} y2={top + i * row + barY + 13} />
+            ),
+          )}
           <text className="perf-tick" x={X(v)} y={axisY + 16} textAnchor={v === 1 ? "start" : "middle"}>{tick(v)}</text>
         </g>
       ))}
