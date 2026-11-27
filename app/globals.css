@@ -3138,6 +3138,41 @@ a.nav-icon:active::before {
   }
 }
 
+/* The keyboard hint at the foot of the Work panel. Touch screens have no
+   keys to press, so they never see it. */
+.nav-keys {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 4px;
+  border-top: 1px solid var(--hair);
+  color: var(--grey);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.nav-keys kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--rule);
+  font: inherit;
+  font-size: 11px;
+  color: var(--ink);
+}
+
+.nav-keys-sep {
+  margin: 0 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-keys {
+    display: flex;
+  }
+}
+
 /* ---------- phones: Menu and a sheet under the bar ---------- */
 
 .nav-menu-btn,

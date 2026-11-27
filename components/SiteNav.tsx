@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { Arrow } from "./Arrow";
 import { IssueLine } from "./IssueLine";
@@ -40,6 +40,7 @@ function useDismiss(open: boolean, close: () => void, refs: React.RefObject<HTML
  */
 export function SiteNav({ parts }: { parts: NavPart[] }) {
   const path = usePathname();
+  const router = useRouter();
   const current = parts.findIndex((p) => `/${p.slug}` === path);
   const [work, setWork] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -72,8 +73,60 @@ export function SiteNav({ parts }: { parts: NavPart[] }) {
   const prev = current > 0 ? parts[current - 1] : null;
   const next = current >= 0 && current < parts.length - 1 ? parts[current + 1] : null;
 
+  // Keyboard: J and K step through the pages in datasheet order (the cover,
+  // then each part), with no wrap at either end. "/" opens the list of parts
+  // that is on screen: the Work panel, or the Menu sheet on a narrow window.
+  // Keys typed into a field, keys with a modifier and held-down repeats do
+  // nothing.
+  const focusFirst = useRef(false);
+  useEffect(() => {
+    const pages = ["/", ...parts.map((p) => `/${p.slug}`)];
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (e.key === "/") {
+        e.preventDefault(); // Firefox opens quick find on "/"
+        focusFirst.current = true;
+        if (window.matchMedia("(max-width: 760px)").matches) setMenu(true);
+        else setWork(true);
+        return;
+      }
+      if (e.shiftKey) return;
+      const key = e.key.toLowerCase();
+      if (key !== "j" && key !== "k") return;
+      const at = pages.indexOf(window.location.pathname);
+      if (at < 0) return;
+      const to = pages[at + (key === "j" ? 1 : -1)];
+      if (to) router.push(to);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [parts, router]);
+
+  // When "/" opened a list, focus its current part, or the first one.
+  useEffect(() => {
+    if (!focusFirst.current || !(work || menu)) return;
+    focusFirst.current = false;
+    const panel = (work ? workPanel : menuPanel).current;
+    const links = [...(panel?.querySelectorAll<HTMLAnchorElement>(".nav-part") ?? [])];
+    (links.find((l) => l.getAttribute("aria-current") === "page") ?? links[0])?.focus();
+  }, [work, menu]);
+
+  // Up and Down move between the parts in an open list.
+  const onListKey = (e: React.KeyboardEvent<HTMLUListElement>) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    const links = [...e.currentTarget.querySelectorAll<HTMLAnchorElement>(".nav-part")];
+    const at = links.indexOf(document.activeElement as HTMLAnchorElement);
+    const to = links[Math.min(links.length - 1, Math.max(0, at + (e.key === "ArrowDown" ? 1 : -1)))];
+    if (to) {
+      e.preventDefault();
+      to.focus();
+    }
+  };
+
   const partList = (onPick: () => void) => (
-    <ul className="nav-parts">
+    <ul className="nav-parts" onKeyDown={onListKey}>
       {parts.map((p, i) => (
         <li key={p.slug}>
           <Link
@@ -119,6 +172,11 @@ export function SiteNav({ parts }: { parts: NavPart[] }) {
                 The catalogue
                 <Arrow dir="right" />
               </Link>
+              {/* Shown only where there is a keyboard and a fine pointer. */}
+              <p className="nav-keys" aria-hidden>
+                <kbd>J</kbd> <kbd>K</kbd> next, previous page<span className="nav-keys-sep">·</span>
+                <kbd>/</kbd> this list
+              </p>
             </div>
           </div>
           <Link href="/#history" className="nav-btn">
