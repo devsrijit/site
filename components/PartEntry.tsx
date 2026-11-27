@@ -58,13 +58,15 @@ export function PartEntry({ part, index, count, page, pages, prev, next }: Props
             <dd>{part.pkg}</dd>
             {part.live ? (
               <>
-                <dt>{liveKey}</dt>
+                <dt>
+                  {liveKey}
+                  {/* A running website: the green LED, on the clock's blink. */}
+                  {part.live.site && <i className="avail-led site-led" aria-hidden />}
+                </dt>
                 <dd>
                   <a href={part.live.href} target="_blank" rel="noopener noreferrer">
                     {part.live.label}<span className="go go--out" aria-hidden>↗</span>
                   </a>
-                  {/* A running website: the green LED, on the clock's blink. */}
-                  {part.live.site && <i className="avail-led site-led" aria-hidden />}
                 </dd>
               </>
             ) : (

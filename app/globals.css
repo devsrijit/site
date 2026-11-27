@@ -1164,12 +1164,12 @@ html[data-tick="1"] .avail-led {
   overflow-wrap: anywhere;
 }
 
-/* The live-site LED sits after the URL and its arrow. */
+/* The live-site LED sits right after the "Live" label. */
 .site-led {
   display: inline-block;
   width: 7px;
   height: 7px;
-  margin-left: 10px;
+  margin-left: 8px;
   vertical-align: 0.08em;
 }
 
