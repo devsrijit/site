@@ -3365,9 +3365,23 @@ a.nav-icon:active::before {
     box-shadow: 0 18px 36px -22px rgb(14 14 12 / 0.3);
     animation: nav-pop 180ms var(--ease-out);
   }
+  /* The row's fill reaches 10 px past the text on both sides; the text
+     stays on the page gutter. */
   .nav-sheet .nav-part {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--hair);
+    position: relative;
+    padding: 12px 10px;
+    margin-inline: -10px;
+  }
+
+  /* The hairline keeps to the gutter, like the rule under the sheet. */
+  .nav-sheet .nav-part::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 1px;
+    background: var(--hair);
   }
 
   .nav-sheet-links {
