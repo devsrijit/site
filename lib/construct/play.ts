@@ -94,6 +94,9 @@ function svgEl(tag: string, attrs: Record<string, string>) {
   return el;
 }
 
+/** A box in viewport px: left, top, right, bottom. */
+type Box = { l: number; t: number; r: number; b: number };
+
 const f = (n: number) => n.toFixed(2);
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -159,6 +162,67 @@ export function play(scene: Scene, opts: PlayOptions): { finish: () => void } {
   const gutterRight = scene.guides.find((g) => g.axis === "x" && g.label.startsWith("gutter") && g.at > w / 2)?.at ?? w - 16;
   const gutterLeft = scene.guides.find((g) => g.axis === "x" && g.label.startsWith("gutter") && g.at < w / 2)?.at ?? 16;
 
+  // ---------- label placement ----------
+  // A guide label never sits on a line. Each label tries a few spots beside
+  // its guide and takes the first one with CLEAR px of dark canvas around
+  // it: no other guide, no block wireframe where it lands, and no glyph
+  // outline. Where no spot is clear, it takes the spot with the least in
+  // the way, weighting glyphs heaviest so a label never covers a letter.
+  // Its plate (.cx-label in construct.css) keeps any line behind the text,
+  // never through it: the one that stays, and a wireframe passing during
+  // its snap. Development builds warn when a label needs the plate.
+  const CLEAR = 4;
+  const INSET = 6; // labels keep off the gutter lines they sit beside
+  const LABEL_H = 10; // .cx-label line-height
+  const CHAR_W = 12 * 0.62; // mono advance 0.6 em + 0.02 em tracking, at 12 px
+  const obstacles: { box: Box; weight: number; guide?: Guide }[] = [];
+  for (const g of scene.guides) {
+    obstacles.push({ guide: g, weight: 1, box: g.axis === "x" ? { l: g.at, r: g.at, t: 0, b: h } : { l: 0, r: w, t: g.at, b: g.at } });
+  }
+  const edges = (x: number, y: number, bw: number, bh: number): Box[] => [
+    { l: x, r: x + bw, t: y, b: y },
+    { l: x, r: x + bw, t: y + bh, b: y + bh },
+    { l: x, r: x, t: y, b: y + bh },
+    { l: x + bw, r: x + bw, t: y, b: y + bh },
+  ];
+  for (const b of scene.blocks) {
+    for (const e of edges(b.rect.x, b.rect.y, b.rect.w, b.rect.h)) obstacles.push({ box: e, weight: 1 });
+  }
+  for (const line of scene.lines) {
+    for (const gl of line.glyphs) {
+      const pts = [...gl.on, ...gl.off];
+      if (!pts.length) continue;
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      obstacles.push({ box: { l: Math.min(...xs), r: Math.max(...xs), t: Math.min(...ys), b: Math.max(...ys) }, weight: 10 });
+    }
+  }
+  const cost = (a: Box, own: Guide) => {
+    if (a.l < 0 || a.t < 0 || a.r > w || a.b > h) return Infinity;
+    let n = 0;
+    for (const o of obstacles) {
+      if (o.guide === own) continue;
+      if (a.l - CLEAR < o.box.r && a.r + CLEAR > o.box.l && a.t - CLEAR < o.box.b && a.b + CLEAR > o.box.t) n += o.weight;
+    }
+    return n;
+  };
+  const pickSpot = (own: Guide, cands: Box[]): Box => {
+    let best = cands[0];
+    let bestCost = Infinity;
+    for (const c of cands) {
+      const n = cost(c, own);
+      if (n < bestCost) {
+        best = c;
+        bestCost = n;
+      }
+      if (n === 0) break;
+    }
+    if (bestCost > 0 && process.env.NODE_ENV !== "production") {
+      console.warn(`[construct] The label "${own.label}" has no clear spot at ${w}×${h}. Its plate hides what crosses it.`);
+    }
+    return best;
+  };
+
   guides.forEach((g, i) => {
     const el =
       g.axis === "x"
@@ -179,24 +243,39 @@ export function play(scene: Scene, opts: PlayOptions): { finish: () => void } {
     );
 
     // Labels: vertical guides read up the gutter; horizontal guides sit at
-    // the page edge, cap height on the left above, baseline on the right below.
+    // the page edge, cap height on the left above, baseline on the right
+    // below. pickSpot() moves a label to a clear spot when that one is not.
     if (!g.label) return;
-    let label: HTMLElement;
+    const len = g.label.length * CHAR_W;
+    let box: Box;
     if (g.axis === "x") {
-      const inLeftHalf = g.at < w / 2;
-      const isRightGutter = g.label.startsWith("gutter") && !inLeftHalf;
-      label = div("cx-label cx-label--v", {
-        top: `${f(h * 0.62)}px`,
-        left: isRightGutter ? `${f(g.at + 4)}px` : `${f(g.at - 15)}px`,
-      }, g.label);
+      const isRightGutter = g.label.startsWith("gutter") && g.at >= w / 2;
+      const sides = isRightGutter ? [g.at + 4, g.at - 15] : [g.at - 15, g.at + 4];
+      const cands: Box[] = [];
+      for (const top of [h * 0.62, h * 0.38, h * 0.8]) {
+        for (const l of sides) cands.push({ l, r: l + LABEL_H, t: top, b: top + len });
+      }
+      box = pickSpot(g, cands);
     } else {
-      const below = g.label.startsWith("baseline") || g.label.startsWith("rule");
-      const left = g.label.startsWith("cap");
-      label = div("cx-label", {
-        top: `${f(below ? g.at + 5 : g.at - 15)}px`,
-        ...(left ? { left: `${f(gutterLeft)}px` } : { right: `${f(w - gutterRight)}px` }),
-      }, g.label);
+      const right = gutterRight - INSET;
+      const left = gutterLeft + INSET;
+      const below = { t: g.at + 5, b: g.at + 5 + LABEL_H };
+      const above = { t: g.at - 15, b: g.at - 5 };
+      const rb = { l: right - len, r: right, ...below };
+      const ra = { l: right - len, r: right, ...above };
+      const lb = { l: left, r: left + len, ...below };
+      const la = { l: left, r: left + len, ...above };
+      const cands = g.label.startsWith("cap")
+        ? [la, lb, ra, rb]
+        : g.label.startsWith("baseline") || g.label.startsWith("rule")
+          ? [rb, ra, lb, la]
+          : [ra, rb, la, lb];
+      box = pickSpot(g, cands);
     }
+    const label = div(g.axis === "x" ? "cx-label cx-label--v" : "cx-label", {
+      top: `${f(box.t)}px`,
+      left: `${f(box.l)}px`,
+    }, g.label);
     dark.append(label);
     run(label, [{ opacity: 0 }, { opacity: 1 }], delay + T.guideDur * 0.4, 200);
   });

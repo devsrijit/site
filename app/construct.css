@@ -122,8 +122,16 @@ html[data-construct] .avail * {
   opacity: 0;
 }
 
+/* A guide label sits on a plate of the canvas colour, above the
+   wireframes, as a drawing breaks a line for its dimension text. A line
+   that passes the label goes behind it, never through the letters. The
+   negative margin keeps the text where play.ts placed it. */
 .cx-label {
   position: absolute;
+  z-index: 2;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  background: var(--cx-bg);
   font-size: 12px;
   line-height: 10px;
   font-weight: 500;
